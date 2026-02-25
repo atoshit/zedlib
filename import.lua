@@ -1,0 +1,322 @@
+---@class ZedLib
+---@field CreateMenu fun(id: string, title: string, subtitle?: string, opts?: ZedMenuOptions)
+---@field AddButton fun(menuId: string, opts: ZedButtonOptions): string
+---@field AddCheckbox fun(menuId: string, opts: ZedCheckboxOptions): string
+---@field AddSubMenu fun(menuId: string, subMenuId: string, label: string, opts?: ZedSubMenuOptions): string
+---@field AddSeparator fun(menuId: string): string
+---@field AddSearchButton fun(menuId: string, opts?: ZedSearchButtonOptions): string
+---@field AddList fun(menuId: string, opts: ZedListOptions): string
+---@field AddSlider fun(menuId: string, opts: ZedSliderOptions): string
+---@field OpenMenu fun(id: string)
+---@field CloseMenu fun()
+---@field IsMenuOpen fun(): boolean
+---@field RemoveMenu fun(id: string)
+---@field Notify fun(type: 'success'|'error'|'warning'|'info', title: string, message?: string, duration?: number)
+---@field NotifySuccess fun(title: string, message?: string, duration?: number)
+---@field NotifyError fun(title: string, message?: string, duration?: number)
+---@field NotifyWarning fun(title: string, message?: string, duration?: number)
+---@field NotifyInfo fun(title: string, message?: string, duration?: number)
+---@field ClearNotifications fun()
+---@field Dialog fun(opts: ZedDialogOptions): string
+---@field Confirm fun(title: string, message: string, onConfirm?: fun(), onCancel?: fun())
+---@field CloseDialog fun()
+---@field SetConfig fun(opts: ZedConfigOptions)
+
+---@class ZedMenuOptions
+---@field color? string Accent color for the menu (hex, e.g. '#e74c3c'). Inherited by submenus.
+---@field banner? string URL of the banner image displayed in the menu header. Inherited by submenus.
+
+---@class ZedButtonOptions
+---@field label string Display label for the button
+---@field icon? string FontAwesome icon name (e.g. 'gear') or image URL (png/jpg)
+---@field id? string Custom unique identifier for this item
+---@field disabled? boolean Whether the button is disabled (default: false)
+---@field metadata? table Arbitrary data passed to the onSelect callback
+---@field onSelect? fun(data: table) Callback fired when the button is selected
+
+---@class ZedCheckboxOptions
+---@field label string Display label for the checkbox
+---@field icon? string FontAwesome icon name or image URL
+---@field id? string Custom unique identifier for this item
+---@field disabled? boolean Whether the checkbox is disabled (default: false)
+---@field checked? boolean Initial checked state (default: false)
+---@field onChange? fun(checked: boolean) Callback fired when the checkbox is toggled
+
+---@class ZedSubMenuOptions
+---@field icon? string FontAwesome icon name or image URL
+---@field id? string Custom unique identifier for this item
+---@field disabled? boolean Whether the submenu button is disabled (default: false)
+---@field subtitle? string Title override for the submenu header (defaults to label)
+---@field color? string Accent color override for this submenu
+---@field banner? string Banner image URL override for this submenu
+
+---@class ZedSearchButtonOptions
+---@field label? string Display label (default: 'Rechercher')
+---@field icon? string FontAwesome icon name or image URL (default: 'magnifying-glass')
+---@field placeholder? string Placeholder text shown when search is active (default: 'Tapez pour rechercher...')
+---@field id? string Custom unique identifier for this item
+
+---@class ZedListItem
+---@field label string Display label for the option
+---@field value string Value identifier for the option
+
+---@class ZedListOptions
+---@field label string Display label for the list
+---@field icon? string FontAwesome icon name or image URL
+---@field id? string Custom unique identifier for this item
+---@field disabled? boolean Whether the list is disabled (default: false)
+---@field items ZedListItem[]|string[] Array of options (strings are auto-converted to {label, value})
+---@field currentIndex? number Initial selected index, 1-based (default: 1)
+---@field onChange? fun(index: number, item: ZedListItem) Callback fired when the selected option changes. Index is 1-based.
+
+---@class ZedSliderOptions
+---@field label string Display label for the slider
+---@field icon? string FontAwesome icon name or image URL
+---@field id? string Custom unique identifier for this item
+---@field disabled? boolean Whether the slider is disabled (default: false)
+---@field min? number Minimum value (default: 0)
+---@field max? number Maximum value (default: 100)
+---@field step? number Step increment (default: 1)
+---@field value? number Initial value (default: 0)
+---@field onChange? fun(value: number) Callback fired when the slider value changes
+
+---@class ZedDialogButton
+---@field label string Display label for the button
+---@field variant? 'primary'|'secondary'|'danger' Visual style of the button (default: 'secondary')
+---@field action? string Action identifier sent to the callback
+---@field onPress? fun(values: table) Callback fired when the button is pressed. Receives input values.
+
+---@class ZedDialogInput
+---@field id? string Input field identifier (default: 'input_N')
+---@field type? 'text'|'number'|'password' Input type (default: 'text')
+---@field label string Display label for the input field
+---@field placeholder? string Placeholder text
+---@field default? string|number Default value
+---@field required? boolean Whether the input is required (default: false)
+---@field maxLength? number Maximum character length
+---@field min? number Minimum value (number type only)
+---@field max? number Maximum value (number type only)
+
+---@class ZedDialogOptions
+---@field id? string Custom dialog identifier
+---@field type? 'input'|'confirm' Dialog type (default: 'input')
+---@field title string Dialog title
+---@field message? string Dialog description message
+---@field inputs? ZedDialogInput[] Array of input fields
+---@field buttons? ZedDialogButton[] Array of action buttons
+---@field closable? boolean Whether the dialog can be dismissed (default: true)
+---@field onResult? fun(action: string, values: table) Global callback receiving the action and all input values
+
+---@class ZedConfigOptions
+---@field sounds? boolean Enable or disable UI sounds (default: true)
+
+---@type ZedLib
+zed = {}
+
+local _callbacks = {}
+local _nextId = 0
+local _resName = GetCurrentResourceName()
+
+local function call(fn, ...)
+    return exports.zedlib[fn](exports.zedlib, ...)
+end
+
+local function storeCb(fn)
+    if type(fn) ~= 'function' then return fn end
+    _nextId = _nextId + 1
+    local id = _resName .. ':cb:' .. _nextId
+    _callbacks[id] = fn
+    return id
+end
+
+AddEventHandler('zedlib:triggerCallback', function(cbId, ...)
+    if _callbacks[cbId] then
+        _callbacks[cbId](...)
+    end
+end)
+
+--- Create a new menu. Must be called before adding items.
+---@param id string Unique menu identifier
+---@param title string Menu title displayed in the header
+---@param subtitle? string Subtitle displayed below the title (only shown when no banner)
+---@param opts? ZedMenuOptions Additional menu options (color, banner)
+function zed.CreateMenu(id, title, subtitle, opts)
+    call('CreateMenu', id, title, subtitle, opts)
+end
+
+--- Add a button item to a menu.
+---@param menuId string Target menu identifier
+---@param opts ZedButtonOptions Button configuration
+---@return string itemId The generated or custom item identifier
+function zed.AddButton(menuId, opts)
+    local o = {}
+    for k, v in pairs(opts) do o[k] = v end
+    o.onSelect = storeCb(opts.onSelect)
+    return call('AddButton', menuId, o)
+end
+
+--- Add a checkbox item to a menu.
+---@param menuId string Target menu identifier
+---@param opts ZedCheckboxOptions Checkbox configuration
+---@return string itemId The generated or custom item identifier
+function zed.AddCheckbox(menuId, opts)
+    local o = {}
+    for k, v in pairs(opts) do o[k] = v end
+    o.onChange = storeCb(opts.onChange)
+    return call('AddCheckbox', menuId, o)
+end
+
+--- Add a submenu item and automatically register the target submenu.
+---@param menuId string Parent menu identifier
+---@param subMenuId string Unique identifier for the new submenu
+---@param label string Display label for the submenu button
+---@param opts? ZedSubMenuOptions Submenu configuration
+---@return string subMenuId The submenu identifier (use to add items to it)
+function zed.AddSubMenu(menuId, subMenuId, label, opts)
+    return call('AddSubMenu', menuId, subMenuId, label, opts)
+end
+
+--- Add a visual separator line to a menu.
+---@param menuId string Target menu identifier
+---@return string itemId The generated item identifier
+function zed.AddSeparator(menuId)
+    return call('AddSeparator', menuId)
+end
+
+--- Add a search/filter button to a menu. Filters items in real-time when activated.
+---@param menuId string Target menu identifier
+---@param opts? ZedSearchButtonOptions Search button configuration
+---@return string itemId The generated or custom item identifier
+function zed.AddSearchButton(menuId, opts)
+    return call('AddSearchButton', menuId, opts)
+end
+
+--- Add a list selector item to a menu.
+---@param menuId string Target menu identifier
+---@param opts ZedListOptions List configuration
+---@return string itemId The generated or custom item identifier
+function zed.AddList(menuId, opts)
+    local o = {}
+    for k, v in pairs(opts) do o[k] = v end
+    o.onChange = storeCb(opts.onChange)
+    return call('AddList', menuId, o)
+end
+
+--- Add a slider item to a menu.
+---@param menuId string Target menu identifier
+---@param opts ZedSliderOptions Slider configuration
+---@return string itemId The generated or custom item identifier
+function zed.AddSlider(menuId, opts)
+    local o = {}
+    for k, v in pairs(opts) do o[k] = v end
+    o.onChange = storeCb(opts.onChange)
+    return call('AddSlider', menuId, o)
+end
+
+--- Open a registered menu by its identifier.
+---@param id string Menu identifier to open
+function zed.OpenMenu(id)
+    call('OpenMenu', id)
+end
+
+--- Close the currently open menu.
+function zed.CloseMenu()
+    call('CloseMenu')
+end
+
+--- Check whether a menu is currently open.
+---@return boolean isOpen True if a menu is currently visible
+function zed.IsMenuOpen()
+    return call('IsMenuOpen')
+end
+
+--- Remove a registered menu and free its resources.
+---@param id string Menu identifier to remove
+function zed.RemoveMenu(id)
+    call('RemoveMenu', id)
+end
+
+--- Display a notification.
+---@param type 'success'|'error'|'warning'|'info' Notification type
+---@param title string Notification title
+---@param message? string Notification body message
+---@param duration? number Display duration in milliseconds (default: 5000)
+function zed.Notify(type, title, message, duration)
+    call('Notify', type, title, message, duration)
+end
+
+--- Display a success notification.
+---@param title string Notification title
+---@param message? string Notification body message
+---@param duration? number Display duration in milliseconds (default: 5000)
+function zed.NotifySuccess(title, message, duration)
+    call('NotifySuccess', title, message, duration)
+end
+
+--- Display an error notification.
+---@param title string Notification title
+---@param message? string Notification body message
+---@param duration? number Display duration in milliseconds (default: 5000)
+function zed.NotifyError(title, message, duration)
+    call('NotifyError', title, message, duration)
+end
+
+--- Display a warning notification.
+---@param title string Notification title
+---@param message? string Notification body message
+---@param duration? number Display duration in milliseconds (default: 5000)
+function zed.NotifyWarning(title, message, duration)
+    call('NotifyWarning', title, message, duration)
+end
+
+--- Display an info notification.
+---@param title string Notification title
+---@param message? string Notification body message
+---@param duration? number Display duration in milliseconds (default: 5000)
+function zed.NotifyInfo(title, message, duration)
+    call('NotifyInfo', title, message, duration)
+end
+
+--- Clear all active notifications.
+function zed.ClearNotifications()
+    call('ClearNotifications')
+end
+
+--- Open a dialog with input fields and/or action buttons.
+---@param opts ZedDialogOptions Dialog configuration
+---@return string dialogId The dialog identifier
+function zed.Dialog(opts)
+    local o = {}
+    for k, v in pairs(opts) do o[k] = v end
+    o.onResult = storeCb(opts.onResult)
+    if opts.buttons then
+        o.buttons = {}
+        for i, btn in ipairs(opts.buttons) do
+            local b = {}
+            for k, v in pairs(btn) do b[k] = v end
+            b.onPress = storeCb(btn.onPress)
+            o.buttons[i] = b
+        end
+    end
+    return call('Dialog', o)
+end
+
+--- Open a simple confirm/cancel dialog.
+---@param title string Dialog title
+---@param message string Dialog message
+---@param onConfirm? fun() Callback fired when the user confirms
+---@param onCancel? fun() Callback fired when the user cancels
+function zed.Confirm(title, message, onConfirm, onCancel)
+    call('Confirm', title, message, storeCb(onConfirm), storeCb(onCancel))
+end
+
+--- Close the currently open dialog.
+function zed.CloseDialog()
+    call('CloseDialog')
+end
+
+--- Update the ZedLib runtime configuration.
+---@param opts ZedConfigOptions Configuration options to update
+function zed.SetConfig(opts)
+    call('SetConfig', opts)
+end
