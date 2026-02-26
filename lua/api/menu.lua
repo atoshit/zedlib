@@ -40,7 +40,8 @@ function UI.AddButton(menuId, opts)
             icon = opts.icon or nil,
             disabled = opts.disabled or false,
             onSelect = callbackAction,
-            metadata = opts.metadata or nil
+            metadata = opts.metadata or nil,
+            category = opts.category or nil,
         }
     })
 
@@ -71,7 +72,8 @@ function UI.AddCheckbox(menuId, opts)
             icon = opts.icon or nil,
             disabled = opts.disabled or false,
             checked = opts.checked or false,
-            onChange = callbackAction
+            onChange = callbackAction,
+            category = opts.category or nil,
         }
     })
 
@@ -112,24 +114,47 @@ function UI.AddSubMenu(menuId, subMenuId, label, opts)
             label = label,
             icon = opts.icon or nil,
             disabled = opts.disabled or false,
-            targetMenu = subMenuId
+            targetMenu = subMenuId,
+            category = opts.category or nil,
         }
     })
 
     return subMenuId
 end
 
+--- Add a category header to a menu. When selected, toggles visibility of items with the same category id.
+---@param menuId string The menu identifier
+---@param opts table The category options (label, icon?, id = category id, disabled?)
+---@return string The category item id (use this id in opts.category when adding items)
+function UI.AddCategory(menuId, opts)
+    local itemId = opts.id or generateId(menuId, 'cat')
+    SendUI('zedlib:addMenuItem', {
+        menuId = menuId,
+        item = {
+            id = itemId,
+            type = 'category',
+            label = opts.label,
+            icon = opts.icon or nil,
+            disabled = opts.disabled or false,
+        }
+    })
+    return itemId
+end
+
 --- Add a separator to a menu
 ---@param menuId string The menu identifier
+---@param opts table Optional: category = string to show only when category is expanded
 ---@return string The generated item ID
-function UI.AddSeparator(menuId)
+function UI.AddSeparator(menuId, opts)
+    opts = opts or {}
     local itemId = generateId(menuId, 'sep')
 
     SendUI('zedlib:addMenuItem', {
         menuId = menuId,
         item = {
             id = itemId,
-            type = 'separator'
+            type = 'separator',
+            category = opts.category or nil,
         }
     })
 
@@ -164,7 +189,8 @@ function UI.AddList(menuId, opts)
             disabled = opts.disabled or false,
             items = listItems,
             currentIndex = (opts.currentIndex or 1) - 1,
-            onChange = callbackAction
+            onChange = callbackAction,
+            category = opts.category or nil,
         }
     })
 
@@ -198,7 +224,8 @@ function UI.AddSlider(menuId, opts)
             max = opts.max or 100,
             step = opts.step or 1,
             value = opts.value or 0,
-            onChange = callbackAction
+            onChange = callbackAction,
+            category = opts.category or nil,
         }
     })
 
@@ -227,6 +254,7 @@ function UI.AddSearchButton(menuId, opts)
             label = opts.label or 'Rechercher',
             icon = opts.icon or 'magnifying-glass',
             placeholder = opts.placeholder or 'Tapez pour rechercher...',
+            category = opts.category or nil,
         }
     })
 
@@ -260,6 +288,7 @@ function UI.AddInfoButton(menuId, opts)
             icon = opts.icon or nil,
             disabled = opts.disabled or false,
             infoData = infoData,
+            category = opts.category or nil,
         }
     })
 

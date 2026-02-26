@@ -8,5 +8,6 @@ export { MenuItemSlider } from './MenuItemSlider';
 export { MenuSeparatorItem } from './MenuSeparator';
 export { MenuItemSearch } from './MenuItemSearch';
 export { MenuItemInfo } from './MenuItemInfo';
+export { MenuItemCategory } from './MenuItemCategory';
 export { MenuInfoPanel } from './MenuInfoPanel';
 export { MenuIcon } from './MenuIcon';

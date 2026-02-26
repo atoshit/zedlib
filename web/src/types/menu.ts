@@ -1,4 +1,4 @@
-export type MenuItemType = 'button' | 'checkbox' | 'separator' | 'submenu' | 'slider' | 'list' | 'search' | 'info';
+export type MenuItemType = 'button' | 'checkbox' | 'separator' | 'submenu' | 'slider' | 'list' | 'search' | 'info' | 'category';
 
 export interface MenuItemBase {
   id: string;
@@ -7,6 +7,8 @@ export interface MenuItemBase {
   description?: string;
   disabled?: boolean;
   icon?: string;
+  /** If set, this item is only visible when the category with this id is expanded */
+  category?: string;
 }
 
 export interface MenuButton extends MenuItemBase {
@@ -24,6 +26,7 @@ export interface MenuCheckbox extends MenuItemBase {
 export interface MenuSeparator {
   id: string;
   type: 'separator';
+  category?: string;
 }
 
 export interface MenuSubmenu extends MenuItemBase {
@@ -68,7 +71,16 @@ export interface MenuInfoButton extends MenuItemBase {
   infoData: MenuInfoData[];
 }
 
-export type MenuItem = MenuButton | MenuCheckbox | MenuSeparator | MenuSubmenu | MenuSlider | MenuList | MenuSearchItem | MenuInfoButton;
+/** Category header: when selected, toggles visibility of items that have category === this item's id */
+export interface MenuCategory {
+  id: string;
+  type: 'category';
+  label: string;
+  icon?: string;
+  disabled?: boolean;
+}
+
+export type MenuItem = MenuButton | MenuCheckbox | MenuSeparator | MenuSubmenu | MenuSlider | MenuList | MenuSearchItem | MenuInfoButton | MenuCategory;
 
 export interface MenuDefinition {
   id: string;

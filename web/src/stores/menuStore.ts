@@ -8,12 +8,22 @@ interface SearchInfo {
   query: string;
 }
 
+function filterByCategory(items: MenuItem[], expandedCategoryId: string | null): MenuItem[] {
+  return items.filter((item) => {
+    if (item.type === 'category') return true;
+    const cat = 'category' in item ? (item as { category?: string }).category : undefined;
+    if (cat == null) return true;
+    return cat === expandedCategoryId;
+  });
+}
+
 interface MenuStore {
   visible: boolean;
   menus: Record<string, MenuDefinition>;
   navigation: MenuNavigationState;
   itemStates: Record<string, Record<string, unknown>>;
   searchState: Record<string, SearchInfo>;
+  expandedCategory: Record<string, string | null>;
 
   registerMenu: (menu: MenuDefinition) => void;
   removeMenu: (id: string) => void;
@@ -33,6 +43,8 @@ interface MenuStore {
   toggleSearch: (menuId: string) => void;
   setSearchQuery: (menuId: string, query: string) => void;
   isSearchActive: () => boolean;
+  toggleCategory: (menuId: string, categoryId: string) => void;
+  getVisibleItems: (menuId: string) => MenuItem[];
 }
 
 export const useMenuStore = create<MenuStore>((set, get) => ({
@@ -45,6 +57,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
   },
   itemStates: {},
   searchState: {},
+  expandedCategory: {},
 
   registerMenu: (menu) => {
     registry.registerMenu(menu);
@@ -135,6 +148,10 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
           [id]: state.navigation.scrollOffset[id] ?? 0,
         },
       },
+      expandedCategory: {
+        ...state.expandedCategory,
+        [id]: null,
+      },
     }));
   },
 
@@ -194,68 +211,79 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     }));
   },
 
+  getVisibleItems: (menuId) => {
+    const { menus, expandedCategory, searchState } = get();
+    const menu = menus[menuId];
+    if (!menu) return [];
+    const expanded = expandedCategory[menuId] ?? null;
+    const byCategory = filterByCategory(menu.items, expanded);
+    const search = searchState[menuId];
+    const q = search?.active ? search.query.toLowerCase() : '';
+    if (!q) return byCategory;
+    return byCategory.filter(
+      (i) =>
+        i.type === 'search' ||
+        i.type === 'separator' ||
+        i.type === 'category' ||
+        ('label' in i && i.label.toLowerCase().includes(q))
+    );
+  },
+
+  toggleCategory: (menuId, categoryId) => {
+    set((state) => {
+      const current = state.expandedCategory[menuId] ?? null;
+      const next = current === categoryId ? null : categoryId;
+      return {
+        expandedCategory: {
+          ...state.expandedCategory,
+          [menuId]: next,
+        },
+      };
+    });
+  },
+
   moveUp: () => {
-    const { navigation, menus, searchState } = get();
+    const { navigation, getVisibleItems } = get();
     const currentMenuId = navigation.stack[navigation.stack.length - 1];
     if (!currentMenuId) return;
-    const menu = menus[currentMenuId];
-    if (!menu) return;
-
-    const search = searchState[currentMenuId];
-    const q = search?.active ? search.query.toLowerCase() : '';
-    const filtered = q
-      ? menu.items.filter((i) => i.type === 'search' || i.type === 'separator' || ('label' in i && i.label.toLowerCase().includes(q)))
-      : menu.items;
+    const filtered = getVisibleItems(currentMenuId);
     const selectableItems = filtered.filter((i) => i.type !== 'separator');
     const currentIndex = navigation.activeIndex[currentMenuId] ?? 0;
     const newIndex = currentIndex <= 0 ? selectableItems.length - 1 : currentIndex - 1;
     Sound.hover();
 
-    set({
+    set((state) => ({
       navigation: {
-        ...navigation,
-        activeIndex: { ...navigation.activeIndex, [currentMenuId]: newIndex },
+        ...state.navigation,
+        activeIndex: { ...state.navigation.activeIndex, [currentMenuId]: newIndex },
       },
-    });
+    }));
   },
 
   moveDown: () => {
-    const { navigation, menus, searchState } = get();
+    const { navigation, getVisibleItems } = get();
     const currentMenuId = navigation.stack[navigation.stack.length - 1];
     if (!currentMenuId) return;
-    const menu = menus[currentMenuId];
-    if (!menu) return;
-
-    const search = searchState[currentMenuId];
-    const q = search?.active ? search.query.toLowerCase() : '';
-    const filtered = q
-      ? menu.items.filter((i) => i.type === 'search' || i.type === 'separator' || ('label' in i && i.label.toLowerCase().includes(q)))
-      : menu.items;
+    const filtered = getVisibleItems(currentMenuId);
     const selectableItems = filtered.filter((i) => i.type !== 'separator');
     const currentIndex = navigation.activeIndex[currentMenuId] ?? 0;
     const newIndex = currentIndex >= selectableItems.length - 1 ? 0 : currentIndex + 1;
     Sound.hover();
 
-    set({
+    set((state) => ({
       navigation: {
-        ...navigation,
-        activeIndex: { ...navigation.activeIndex, [currentMenuId]: newIndex },
+        ...state.navigation,
+        activeIndex: { ...state.navigation.activeIndex, [currentMenuId]: newIndex },
       },
-    });
+    }));
   },
 
   selectCurrent: () => {
-    const { navigation, menus, searchState } = get();
+    const { navigation, getVisibleItems } = get();
     const currentMenuId = navigation.stack[navigation.stack.length - 1];
     if (!currentMenuId) return;
-    const menu = menus[currentMenuId];
-    if (!menu) return;
 
-    const search = searchState[currentMenuId];
-    const q = search?.active ? search.query.toLowerCase() : '';
-    const filtered = q
-      ? menu.items.filter((i) => i.type === 'search' || i.type === 'separator' || ('label' in i && i.label.toLowerCase().includes(q)))
-      : menu.items;
+    const filtered = getVisibleItems(currentMenuId);
     const selectableItems = filtered.filter((i) => i.type !== 'separator');
     const currentIndex = navigation.activeIndex[currentMenuId] ?? 0;
     const item = selectableItems[currentIndex];
@@ -265,6 +293,10 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
       case 'search':
         Sound.select();
         get().toggleSearch(currentMenuId);
+        break;
+      case 'category':
+        Sound.select();
+        get().toggleCategory(currentMenuId, item.id);
         break;
       case 'button':
         Sound.select();

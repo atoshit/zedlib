@@ -12,6 +12,7 @@ import { MenuItemList } from './MenuItemList';
 import { MenuItemSlider } from './MenuItemSlider';
 import { MenuItemSearch } from './MenuItemSearch';
 import { MenuItemInfo } from './MenuItemInfo';
+import { MenuItemCategory } from './MenuItemCategory';
 import { MenuInfoPanel } from './MenuInfoPanel';
 import { MenuSeparatorItem } from './MenuSeparator';
 import type { MenuItem, MenuInfoButton } from '@/types';
@@ -26,8 +27,16 @@ function getItemHeight(item: MenuItem) {
 }
 
 export function Menu() {
-  const { visible, navigation, menus, searchState, setActiveIndex, selectCurrent } =
-    useMenuStore();
+  const {
+    visible,
+    navigation,
+    menus,
+    searchState,
+    expandedCategory,
+    getVisibleItems,
+    setActiveIndex,
+    selectCurrent,
+  } = useMenuStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentMenuId = navigation.stack[navigation.stack.length - 1];
@@ -46,17 +55,10 @@ export function Menu() {
 
   useMenuNavigation(!isFiveM && !isSearchActive);
 
-  const allItems = currentMenu?.items ?? [];
-
   const displayItems = useMemo(() => {
-    if (!isSearchActive || !searchQuery.trim()) return allItems;
-    const q = searchQuery.toLowerCase();
-    return allItems.filter((item) => {
-      if (item.type === 'search') return true;
-      if (item.type === 'separator') return false;
-      return 'label' in item && item.label.toLowerCase().includes(q);
-    });
-  }, [allItems, isSearchActive, searchQuery]);
+    if (!currentMenuId) return [];
+    return getVisibleItems(currentMenuId);
+  }, [currentMenuId, getVisibleItems, expandedCategory, searchState, menus]);
 
   const selectableMap = useMemo(() => {
     const map: number[] = [];
@@ -243,6 +245,19 @@ export function Menu() {
             <MenuItemInfo
               item={item}
               isActive={isActive}
+              onHover={() => setActiveIndex(currentMenuId!, selectableIdx)}
+            />
+          );
+        case 'category':
+          return (
+            <MenuItemCategory
+              item={item}
+              isActive={isActive}
+              isExpanded={expandedCategory[currentMenuId!] === item.id}
+              onSelect={() => {
+                setActiveIndex(currentMenuId!, selectableIdx);
+                selectCurrent();
+              }}
               onHover={() => setActiveIndex(currentMenuId!, selectableIdx)}
             />
           );

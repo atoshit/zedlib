@@ -3,7 +3,8 @@
 ---@field AddButton fun(menuId: string, opts: ZedButtonOptions): string
 ---@field AddCheckbox fun(menuId: string, opts: ZedCheckboxOptions): string
 ---@field AddSubMenu fun(menuId: string, subMenuId: string, label: string, opts?: ZedSubMenuOptions): string
----@field AddSeparator fun(menuId: string): string
+---@field AddSeparator fun(menuId: string, opts?: ZedSeparatorOptions): string
+---@field AddCategory fun(menuId: string, opts: ZedCategoryOptions): string
 ---@field AddSearchButton fun(menuId: string, opts?: ZedSearchButtonOptions): string
 ---@field AddInfoButton fun(menuId: string, opts: ZedInfoButtonOptions): string
 ---@field AddList fun(menuId: string, opts: ZedListOptions): string
@@ -32,6 +33,7 @@
 ---@field icon? string FontAwesome icon name (e.g. 'gear') or image URL (png/jpg)
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the button is disabled (default: false)
+---@field category? string Category id: item is only visible when this category is expanded
 ---@field metadata? table Arbitrary data passed to the onSelect callback
 ---@field onSelect? fun(data: table) Callback fired when the button is selected
 
@@ -40,6 +42,7 @@
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the checkbox is disabled (default: false)
+---@field category? string Category id: item is only visible when this category is expanded
 ---@field checked? boolean Initial checked state (default: false)
 ---@field onChange? fun(checked: boolean) Callback fired when the checkbox is toggled
 
@@ -47,15 +50,26 @@
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the submenu button is disabled (default: false)
+---@field category? string Category id: item is only visible when this category is expanded
 ---@field subtitle? string Title override for the submenu header (defaults to label)
 ---@field color? string Accent color override for this submenu
 ---@field banner? string Banner image URL override for this submenu
+
+---@class ZedCategoryOptions
+---@field label string Display label for the category header
+---@field id string Category id (used in opts.category when adding items to this category)
+---@field icon? string FontAwesome icon name or image URL
+---@field disabled? boolean Whether the category header is disabled (default: false)
+
+---@class ZedSeparatorOptions
+---@field category? string Category id: separator is only visible when this category is expanded
 
 ---@class ZedSearchButtonOptions
 ---@field label? string Display label (default: 'Rechercher')
 ---@field icon? string FontAwesome icon name or image URL (default: 'magnifying-glass')
 ---@field placeholder? string Placeholder text shown when search is active (default: 'Tapez pour rechercher...')
 ---@field id? string Custom unique identifier for this item
+---@field category? string Category id: item is only visible when this category is expanded
 
 ---@class ZedInfoData
 ---@field label string Display label for the data row
@@ -66,6 +80,7 @@
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the info button is disabled (default: false)
+---@field category? string Category id: item is only visible when this category is expanded
 ---@field data ZedInfoData[] Array of label/value pairs displayed in the info panel
 
 ---@class ZedListItem
@@ -77,6 +92,7 @@
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the list is disabled (default: false)
+---@field category? string Category id: item is only visible when this category is expanded
 ---@field items ZedListItem[]|string[] Array of options (strings are auto-converted to {label, value})
 ---@field currentIndex? number Initial selected index, 1-based (default: 1)
 ---@field onChange? fun(index: number, item: ZedListItem) Callback fired when the selected option changes. Index is 1-based.
@@ -86,6 +102,7 @@
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the slider is disabled (default: false)
+---@field category? string Category id: item is only visible when this category is expanded
 ---@field min? number Minimum value (default: 0)
 ---@field max? number Maximum value (default: 100)
 ---@field step? number Step increment (default: 1)
@@ -193,9 +210,18 @@ end
 
 --- Add a visual separator line to a menu.
 ---@param menuId string Target menu identifier
+---@param opts? ZedSeparatorOptions Optional: category to show separator only when category is expanded
 ---@return string itemId The generated item identifier
-function zed.AddSeparator(menuId)
-    return call('AddSeparator', menuId)
+function zed.AddSeparator(menuId, opts)
+    return call('AddSeparator', menuId, opts)
+end
+
+--- Add a category header. When selected, toggles visibility of items that have opts.category equal to this category id.
+---@param menuId string Target menu identifier
+---@param opts ZedCategoryOptions Category label and id (id is used in other items' category option)
+---@return string categoryId The category id (use in opts.category when adding items)
+function zed.AddCategory(menuId, opts)
+    return call('AddCategory', menuId, opts)
 end
 
 --- Add a search/filter button to a menu. Filters items in real-time when activated.
