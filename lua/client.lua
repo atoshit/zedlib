@@ -77,14 +77,23 @@ local REPEAT_DELAY = 80
 
 local holdState = {}
 
+--- Check if a control is pressed
+---@param control number The control to check
+---@return boolean Whether the control is pressed
 local function isPressed(control)
     return IsDisabledControlPressed(0, control) or IsControlPressed(0, control)
 end
 
+--- Check if a control is just pressed
+---@param control number The control to check
+---@return boolean Whether the control is just pressed
 local function isJustPressed(control)
     return IsDisabledControlJustPressed(0, control) or IsControlJustPressed(0, control)
 end
 
+--- Handle the hold of a control
+---@param control number The control to handle
+---@param action function The action to perform when the control is held
 local function handleHold(control, action)
     local now = GetGameTimer()
     if isJustPressed(control) then
@@ -120,8 +129,9 @@ local disabledControls = {
 CreateThread(function()
     while true do
         if UI and UI.IsMenuOpen() then
-            for _, ctrl in ipairs(disabledControls) do
-                DisableControlAction(0, ctrl, true)
+
+            for i = 1, #disabledControls do
+                DisableControlAction(0, disabledControls[i], true)
             end
 
             if not isSearchActive then
