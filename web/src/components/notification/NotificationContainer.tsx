@@ -6,7 +6,8 @@ const positionClasses: Record<string, string> = {
   'top-right': 'top-4 right-4',
   'top-left': 'top-4 left-4',
   'bottom-right': 'bottom-4 right-4',
-  'bottom-left': 'bottom-4 left-4',
+  // Au-dessus de la minimap, un peu plus bas et légèrement à droite
+  'bottom-left': 'left-6 bottom-[240px]',
   'top-center': 'top-4 left-1/2 -translate-x-1/2',
 };
 

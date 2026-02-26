@@ -5,9 +5,11 @@ export interface NotificationData {
   id: string;
   type: NotificationType;
   title: string;
+  subtitle?: string;
   message?: string;
   duration?: number;
   icon?: string;
+  image?: string;
   color?: string;
   position?: NotificationPosition;
   showProgress?: boolean;

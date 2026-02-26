@@ -19,7 +19,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   config: {
     defaultDuration: 5000,
     maxVisible: 5,
-    position: 'top-right',
+    position: 'bottom-left',
     stackDirection: 'down',
   },
 

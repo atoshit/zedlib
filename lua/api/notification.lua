@@ -1,53 +1,65 @@
 --- Display a notification
 ---@param type string The notification type ('success'|'error'|'warning'|'info')
 ---@param title string The notification title
----@param message? string The notification message
+---@param subtitle? string Optional subtitle below the title
+---@param message? string The notification message (description)
 ---@param duration? number The display duration in milliseconds (default: 5000)
 ---@param color? string The accent color (hex)
-function UI.Notify(type, title, message, duration, color)
+---@param image? string Optional image URL shown at top-left of the notification
+function UI.Notify(type, title, subtitle, message, duration, color, image)
     SendUI('zedlib:notify', {
         type = type,
         title = title,
+        subtitle = subtitle or nil,
         message = message or nil,
         duration = duration or 5000,
         color = color or nil,
+        image = image or nil,
     })
 end
 
 --- Display a success notification
 ---@param title string
+---@param subtitle? string
 ---@param message? string
 ---@param duration? number
 ---@param color? string
-function UI.NotifySuccess(title, message, duration, color)
-    UI.Notify('success', title, message, duration, color)
+---@param image? string
+function UI.NotifySuccess(title, subtitle, message, duration, color, image)
+    UI.Notify('success', title, subtitle, message, duration, color, image)
 end
 
 --- Display an error notification
 ---@param title string
+---@param subtitle? string
 ---@param message? string
 ---@param duration? number
 ---@param color? string
-function UI.NotifyError(title, message, duration, color)
-    UI.Notify('error', title, message, duration, color)
+---@param image? string
+function UI.NotifyError(title, subtitle, message, duration, color, image)
+    UI.Notify('error', title, subtitle, message, duration, color, image)
 end
 
 --- Display a warning notification
 ---@param title string
+---@param subtitle? string
 ---@param message? string
 ---@param duration? number
 ---@param color? string
-function UI.NotifyWarning(title, message, duration, color)
-    UI.Notify('warning', title, message, duration, color)
+---@param image? string
+function UI.NotifyWarning(title, subtitle, message, duration, color, image)
+    UI.Notify('warning', title, subtitle, message, duration, color, image)
 end
 
 --- Display an info notification
 ---@param title string
+---@param subtitle? string
 ---@param message? string
 ---@param duration? number
 ---@param color? string
-function UI.NotifyInfo(title, message, duration, color)
-    UI.Notify('info', title, message, duration, color)
+---@param image? string
+function UI.NotifyInfo(title, subtitle, message, duration, color, image)
+    UI.Notify('info', title, subtitle, message, duration, color, image)
 end
 
 --- Clear all active notifications

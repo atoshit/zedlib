@@ -13,11 +13,11 @@
 ---@field CloseMenu fun()
 ---@field IsMenuOpen fun(): boolean
 ---@field RemoveMenu fun(id: string)
----@field Notify fun(type: 'success'|'error'|'warning'|'info', title: string, message?: string, duration?: number, color?: string)
----@field NotifySuccess fun(title: string, message?: string, duration?: number, color?: string)
----@field NotifyError fun(title: string, message?: string, duration?: number, color?: string)
----@field NotifyWarning fun(title: string, message?: string, duration?: number, color?: string)
----@field NotifyInfo fun(title: string, message?: string, duration?: number, color?: string)
+---@field Notify fun(type: 'success'|'error'|'warning'|'info', title: string, subtitle?: string, message?: string, duration?: number, color?: string, image?: string)
+---@field NotifySuccess fun(title: string, subtitle?: string, message?: string, duration?: number, color?: string, image?: string)
+---@field NotifyError fun(title: string, subtitle?: string, message?: string, duration?: number, color?: string, image?: string)
+---@field NotifyWarning fun(title: string, subtitle?: string, message?: string, duration?: number, color?: string, image?: string)
+---@field NotifyInfo fun(title: string, subtitle?: string, message?: string, duration?: number, color?: string, image?: string)
 ---@field ClearNotifications fun()
 ---@field Dialog fun(opts: ZedDialogOptions): string
 ---@field Confirm fun(title: string, message: string, onConfirm?: fun(), onCancel?: fun(), color?: string)
@@ -288,47 +288,57 @@ end
 --- Display a notification.
 ---@param type 'success'|'error'|'warning'|'info' Notification type
 ---@param title string Notification title
----@param message? string Notification body message
+---@param subtitle? string Optional subtitle below the title
+---@param message? string Notification body message (description)
 ---@param duration? number Display duration in milliseconds (default: 5000)
 ---@param color? string Accent color override (hex, e.g. '#e74c3c')
-function zed.Notify(type, title, message, duration, color)
-    call('Notify', type, title, message, duration, color)
+---@param image? string Optional image URL shown at top-left of the notification
+function zed.Notify(type, title, subtitle, message, duration, color, image)
+    call('Notify', type, title, subtitle, message, duration, color, image)
 end
 
 --- Display a success notification.
 ---@param title string Notification title
+---@param subtitle? string Optional subtitle below the title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
 ---@param color? string Accent color override (hex)
-function zed.NotifySuccess(title, message, duration, color)
-    call('NotifySuccess', title, message, duration, color)
+---@param image? string Optional image URL (top-left)
+function zed.NotifySuccess(title, subtitle, message, duration, color, image)
+    call('NotifySuccess', title, subtitle, message, duration, color, image)
 end
 
 --- Display an error notification.
 ---@param title string Notification title
+---@param subtitle? string Optional subtitle below the title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
 ---@param color? string Accent color override (hex)
-function zed.NotifyError(title, message, duration, color)
-    call('NotifyError', title, message, duration, color)
+---@param image? string Optional image URL (top-left)
+function zed.NotifyError(title, subtitle, message, duration, color, image)
+    call('NotifyError', title, subtitle, message, duration, color, image)
 end
 
 --- Display a warning notification.
 ---@param title string Notification title
+---@param subtitle? string Optional subtitle below the title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
 ---@param color? string Accent color override (hex)
-function zed.NotifyWarning(title, message, duration, color)
-    call('NotifyWarning', title, message, duration, color)
+---@param image? string Optional image URL (top-left)
+function zed.NotifyWarning(title, subtitle, message, duration, color, image)
+    call('NotifyWarning', title, subtitle, message, duration, color, image)
 end
 
 --- Display an info notification.
 ---@param title string Notification title
+---@param subtitle? string Optional subtitle below the title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
 ---@param color? string Accent color override (hex)
-function zed.NotifyInfo(title, message, duration, color)
-    call('NotifyInfo', title, message, duration, color)
+---@param image? string Optional image URL (top-left)
+function zed.NotifyInfo(title, subtitle, message, duration, color, image)
+    call('NotifyInfo', title, subtitle, message, duration, color, image)
 end
 
 --- Clear all active notifications.

@@ -496,33 +496,35 @@ zed.RemoveMenu("main")
 #### Generic Notification
 
 ```lua
-zed.Notify("success", "Purchase Complete", "You bought a Zentorno for $725,000", 5000)
+zed.Notify("success", "Purchase Complete", nil, "You bought a Zentorno for $725,000", 5000)
 
--- With custom accent color (hex)
-zed.Notify("info", "Custom", "Message here", 5000, "#3498db")
+-- With subtitle (3rd param) and custom accent color
+zed.Notify("info", "Custom", "Category", "Message here", 5000, "#3498db")
 ```
 
 | Parameter  | Type   | Required | Default | Description |
 |------------|--------|----------|---------|-------------|
 | `type`     | string | yes      | —       | One of `"success"`, `"error"`, `"warning"`, `"info"` |
 | `title`    | string | yes      | —       | Notification title |
-| `message`  | string | no       | nil     | Body text |
+| `subtitle` | string | no       | nil     | Subtitle below the title |
+| `message`  | string | no       | nil     | Body text (description) |
 | `duration` | number | no       | 5000    | Display time in milliseconds |
 | `color`    | string | no       | type default | Accent color (hex, e.g. `"#e74c3c"`) |
+| `image`    | string | no       | nil     | Image URL shown at top-left of the notification |
 
 #### Shortcut Functions
 
 ```lua
-zed.NotifySuccess("Saved", "Your progress has been saved")
-zed.NotifyError("Failed", "Could not connect to the database")
-zed.NotifyWarning("Low Health", "Your health is below 25%")
-zed.NotifyInfo("Tip", "Press E to interact with nearby objects")
+zed.NotifySuccess("Saved", nil, "Your progress has been saved")
+zed.NotifyError("Failed", nil, "Could not connect to the database")
+zed.NotifyWarning("Low Health", nil, "Your health is below 25%")
+zed.NotifyInfo("Tip", nil, "Press E to interact with nearby objects")
 
--- With custom color (optional 4th parameter)
-zed.NotifySuccess("Done", "Saved", 5000, "#22c55e")
+-- With subtitle (2nd param) and optional duration/color/image
+zed.NotifySuccess("Done", "Settings", "Saved", 5000, "#22c55e")
 ```
 
-Each shortcut accepts `(title, message?, duration?, color?)`.
+Each shortcut accepts `(title, subtitle?, message?, duration?, color?, image?)`.
 
 #### Clear All Notifications
 
@@ -741,11 +743,11 @@ Hold arrow keys for auto-repeat (300ms initial delay, 80ms repeat interval).
 
 | Function | Parameters | Returns | Description |
 |----------|-------------|---------|-------------|
-| `Notify` | `type, title, message?, duration?, color?` | — | Show a notification |
-| `NotifySuccess` | `title, message?, duration?, color?` | — | Show a success notification |
-| `NotifyError` | `title, message?, duration?, color?` | — | Show an error notification |
-| `NotifyWarning` | `title, message?, duration?, color?` | — | Show a warning notification |
-| `NotifyInfo` | `title, message?, duration?, color?` | — | Show an info notification |
+| `Notify` | `type, title, subtitle?, message?, duration?, color?, image?` | — | Show a notification |
+| `NotifySuccess` | `title, subtitle?, message?, duration?, color?, image?` | — | Show a success notification |
+| `NotifyError` | `title, subtitle?, message?, duration?, color?, image?` | — | Show an error notification |
+| `NotifyWarning` | `title, subtitle?, message?, duration?, color?, image?` | — | Show a warning notification |
+| `NotifyInfo` | `title, subtitle?, message?, duration?, color?, image?` | — | Show an info notification |
 | `ClearNotifications` | — | — | Dismiss all notifications |
 
 ### Dialog Functions
