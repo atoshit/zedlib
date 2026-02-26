@@ -255,6 +255,39 @@ function UI.AddSearchButton(menuId, opts)
     return itemId
 end
 
+--- Add an info button to a menu
+---@param menuId string The menu identifier
+---@param opts table The info button options
+---@return string The generated item ID
+function UI.AddInfoButton(menuId, opts)
+    local itemId = opts.id or generateId(menuId, 'info')
+
+    local infoData = {}
+    if opts.data then
+        for i, row in ipairs(opts.data) do
+            infoData[i] = {
+                label = row.label,
+                value = tostring(row.value),
+            }
+        end
+    end
+
+    SendUI('zedlib:addMenuItem', {
+        menuId = menuId,
+        item = {
+            id = itemId,
+            type = 'info',
+            label = opts.label,
+            description = opts.description or nil,
+            icon = opts.icon or nil,
+            disabled = opts.disabled or false,
+            infoData = infoData,
+        }
+    })
+
+    return itemId
+end
+
 local isMenuOpen = false
 
 --- Check if a menu is open
@@ -298,13 +331,15 @@ end
 ---@param title string The notification title
 ---@param message string The notification message
 ---@param duration number The notification duration in milliseconds
+---@param color string The accent color (hex)
 ---@return nil
-function UI.Notify(type, title, message, duration)
+function UI.Notify(type, title, message, duration, color)
     SendUI('zedlib:notify', {
         type = type,
         title = title,
         message = message or nil,
-        duration = duration or 5000
+        duration = duration or 5000,
+        color = color or nil,
     })
 end
 
@@ -312,36 +347,40 @@ end
 ---@param title string The notification title
 ---@param message string The notification message
 ---@param duration number The notification duration in milliseconds
+---@param color string The accent color (hex)
 ---@return nil
-function UI.NotifySuccess(title, message, duration)
-    UI.Notify('success', title, message, duration)
+function UI.NotifySuccess(title, message, duration, color)
+    UI.Notify('success', title, message, duration, color)
 end
 
 --- Notify an error message
 ---@param title string The notification title
 ---@param message string The notification message
 ---@param duration number The notification duration in milliseconds
+---@param color string The accent color (hex)
 ---@return nil
-function UI.NotifyError(title, message, duration)
-    UI.Notify('error', title, message, duration)
+function UI.NotifyError(title, message, duration, color)
+    UI.Notify('error', title, message, duration, color)
 end
 
 --- Notify a warning message
 ---@param title string The notification title
 ---@param message string The notification message
 ---@param duration number The notification duration in milliseconds
+---@param color string The accent color (hex)
 ---@return nil
-function UI.NotifyWarning(title, message, duration)
-    UI.Notify('warning', title, message, duration)
+function UI.NotifyWarning(title, message, duration, color)
+    UI.Notify('warning', title, message, duration, color)
 end
 
 --- Notify an info message
 ---@param title string The notification title
 ---@param message string The notification message
 ---@param duration number The notification duration in milliseconds
+---@param color string The accent color (hex)
 ---@return nil
-function UI.NotifyInfo(title, message, duration)
-    UI.Notify('info', title, message, duration)
+function UI.NotifyInfo(title, message, duration, color)
+    UI.Notify('info', title, message, duration, color)
 end
 
 --- Clear all notifications
@@ -379,7 +418,8 @@ function UI.Dialog(opts)
             buttons[i] = {
                 label = btn.label,
                 variant = btn.variant or 'secondary',
-                action = btn.action or ('action_' .. i)
+                action = btn.action or ('action_' .. i),
+                icon = btn.icon or nil,
             }
 
             if btn.onPress then
@@ -397,7 +437,9 @@ function UI.Dialog(opts)
         message = opts.message or nil,
         inputs = inputs,
         buttons = buttons,
-        closable = opts.closable ~= false
+        closable = opts.closable ~= false,
+        color = opts.color or nil,
+        icon = opts.icon or nil,
     })
 
     SetNuiFocus(true, true)
@@ -417,15 +459,17 @@ end
 ---@param message string The dialog message
 ---@param onConfirm function The callback function to fire when the user confirms
 ---@param onCancel function The callback function to fire when the user cancels
+---@param color string The accent color (hex)
 ---@return string The dialog identifier
-function UI.Confirm(title, message, onConfirm, onCancel)
+function UI.Confirm(title, message, onConfirm, onCancel, color)
     UI.Dialog({
         title = title,
         message = message,
         type = 'confirm',
+        color = color or nil,
         buttons = {
             {
-                label = 'Annuler',
+                label = 'Cancel',
                 variant = 'secondary',
                 action = 'cancel',
                 onPress = function()
@@ -433,7 +477,7 @@ function UI.Confirm(title, message, onConfirm, onCancel)
                 end
             },
             {
-                label = 'Confirmer',
+                label = 'Confirm',
                 variant = 'primary',
                 action = 'confirm',
                 onPress = function()
@@ -466,6 +510,7 @@ exports('AddSeparator', UI.AddSeparator)
 exports('AddList', UI.AddList)
 exports('AddSlider', UI.AddSlider)
 exports('AddSearchButton', UI.AddSearchButton)
+exports('AddInfoButton', UI.AddInfoButton)
 exports('OpenMenu', UI.OpenMenu)
 exports('CloseMenu', UI.CloseMenu)
 exports('IsMenuOpen', UI.IsMenuOpen)

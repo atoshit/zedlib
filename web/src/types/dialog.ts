@@ -4,6 +4,7 @@ export interface DialogButton {
   label: string;
   variant?: 'primary' | 'secondary' | 'danger';
   action: string;
+  icon?: string;
 }
 
 export interface DialogInputField {
@@ -26,6 +27,8 @@ export interface DialogData {
   inputs?: DialogInputField[];
   buttons?: DialogButton[];
   closable?: boolean;
+  color?: string;
+  icon?: string;
 }
 
 export interface DialogResult {

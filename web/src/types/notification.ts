@@ -8,6 +8,7 @@ export interface NotificationData {
   message?: string;
   duration?: number;
   icon?: string;
+  color?: string;
   position?: NotificationPosition;
   showProgress?: boolean;
 }

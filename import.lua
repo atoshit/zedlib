@@ -5,20 +5,21 @@
 ---@field AddSubMenu fun(menuId: string, subMenuId: string, label: string, opts?: ZedSubMenuOptions): string
 ---@field AddSeparator fun(menuId: string): string
 ---@field AddSearchButton fun(menuId: string, opts?: ZedSearchButtonOptions): string
+---@field AddInfoButton fun(menuId: string, opts: ZedInfoButtonOptions): string
 ---@field AddList fun(menuId: string, opts: ZedListOptions): string
 ---@field AddSlider fun(menuId: string, opts: ZedSliderOptions): string
 ---@field OpenMenu fun(id: string)
 ---@field CloseMenu fun()
 ---@field IsMenuOpen fun(): boolean
 ---@field RemoveMenu fun(id: string)
----@field Notify fun(type: 'success'|'error'|'warning'|'info', title: string, message?: string, duration?: number)
----@field NotifySuccess fun(title: string, message?: string, duration?: number)
----@field NotifyError fun(title: string, message?: string, duration?: number)
----@field NotifyWarning fun(title: string, message?: string, duration?: number)
----@field NotifyInfo fun(title: string, message?: string, duration?: number)
+---@field Notify fun(type: 'success'|'error'|'warning'|'info', title: string, message?: string, duration?: number, color?: string)
+---@field NotifySuccess fun(title: string, message?: string, duration?: number, color?: string)
+---@field NotifyError fun(title: string, message?: string, duration?: number, color?: string)
+---@field NotifyWarning fun(title: string, message?: string, duration?: number, color?: string)
+---@field NotifyInfo fun(title: string, message?: string, duration?: number, color?: string)
 ---@field ClearNotifications fun()
 ---@field Dialog fun(opts: ZedDialogOptions): string
----@field Confirm fun(title: string, message: string, onConfirm?: fun(), onCancel?: fun())
+---@field Confirm fun(title: string, message: string, onConfirm?: fun(), onCancel?: fun(), color?: string)
 ---@field CloseDialog fun()
 ---@field SetConfig fun(opts: ZedConfigOptions)
 
@@ -56,6 +57,17 @@
 ---@field placeholder? string Placeholder text shown when search is active (default: 'Tapez pour rechercher...')
 ---@field id? string Custom unique identifier for this item
 
+---@class ZedInfoData
+---@field label string Display label for the data row
+---@field value string|number Display value for the data row
+
+---@class ZedInfoButtonOptions
+---@field label string Display label for the info button
+---@field icon? string FontAwesome icon name or image URL
+---@field id? string Custom unique identifier for this item
+---@field disabled? boolean Whether the info button is disabled (default: false)
+---@field data ZedInfoData[] Array of label/value pairs displayed in the info panel
+
 ---@class ZedListItem
 ---@field label string Display label for the option
 ---@field value string Value identifier for the option
@@ -84,6 +96,7 @@
 ---@field label string Display label for the button
 ---@field variant? 'primary'|'secondary'|'danger' Visual style of the button (default: 'secondary')
 ---@field action? string Action identifier sent to the callback
+---@field icon? string FontAwesome icon name displayed before the label (e.g. 'trash')
 ---@field onPress? fun(values: table) Callback fired when the button is pressed. Receives input values.
 
 ---@class ZedDialogInput
@@ -105,6 +118,8 @@
 ---@field inputs? ZedDialogInput[] Array of input fields
 ---@field buttons? ZedDialogButton[] Array of action buttons
 ---@field closable? boolean Whether the dialog can be dismissed (default: true)
+---@field color? string Accent color for the dialog (hex, e.g. '#e74c3c')
+---@field icon? string FontAwesome icon name displayed in the dialog header (e.g. 'circle-question')
 ---@field onResult? fun(action: string, values: table) Global callback receiving the action and all input values
 
 ---@class ZedConfigOptions
@@ -191,6 +206,14 @@ function zed.AddSearchButton(menuId, opts)
     return call('AddSearchButton', menuId, opts)
 end
 
+--- Add an info button to a menu. Displays a panel with label/value pairs when hovered.
+---@param menuId string Target menu identifier
+---@param opts ZedInfoButtonOptions Info button configuration
+---@return string itemId The generated or custom item identifier
+function zed.AddInfoButton(menuId, opts)
+    return call('AddInfoButton', menuId, opts)
+end
+
 --- Add a list selector item to a menu.
 ---@param menuId string Target menu identifier
 ---@param opts ZedListOptions List configuration
@@ -241,40 +264,45 @@ end
 ---@param title string Notification title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
-function zed.Notify(type, title, message, duration)
-    call('Notify', type, title, message, duration)
+---@param color? string Accent color override (hex, e.g. '#e74c3c')
+function zed.Notify(type, title, message, duration, color)
+    call('Notify', type, title, message, duration, color)
 end
 
 --- Display a success notification.
 ---@param title string Notification title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
-function zed.NotifySuccess(title, message, duration)
-    call('NotifySuccess', title, message, duration)
+---@param color? string Accent color override (hex)
+function zed.NotifySuccess(title, message, duration, color)
+    call('NotifySuccess', title, message, duration, color)
 end
 
 --- Display an error notification.
 ---@param title string Notification title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
-function zed.NotifyError(title, message, duration)
-    call('NotifyError', title, message, duration)
+---@param color? string Accent color override (hex)
+function zed.NotifyError(title, message, duration, color)
+    call('NotifyError', title, message, duration, color)
 end
 
 --- Display a warning notification.
 ---@param title string Notification title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
-function zed.NotifyWarning(title, message, duration)
-    call('NotifyWarning', title, message, duration)
+---@param color? string Accent color override (hex)
+function zed.NotifyWarning(title, message, duration, color)
+    call('NotifyWarning', title, message, duration, color)
 end
 
 --- Display an info notification.
 ---@param title string Notification title
 ---@param message? string Notification body message
 ---@param duration? number Display duration in milliseconds (default: 5000)
-function zed.NotifyInfo(title, message, duration)
-    call('NotifyInfo', title, message, duration)
+---@param color? string Accent color override (hex)
+function zed.NotifyInfo(title, message, duration, color)
+    call('NotifyInfo', title, message, duration, color)
 end
 
 --- Clear all active notifications.
@@ -306,8 +334,9 @@ end
 ---@param message string Dialog message
 ---@param onConfirm? fun() Callback fired when the user confirms
 ---@param onCancel? fun() Callback fired when the user cancels
-function zed.Confirm(title, message, onConfirm, onCancel)
-    call('Confirm', title, message, storeCb(onConfirm), storeCb(onCancel))
+---@param color? string Accent color override (hex, e.g. '#e74c3c')
+function zed.Confirm(title, message, onConfirm, onCancel, color)
+    call('Confirm', title, message, storeCb(onConfirm), storeCb(onCancel), color)
 end
 
 --- Close the currently open dialog.

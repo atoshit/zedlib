@@ -1,4 +1,4 @@
-export type MenuItemType = 'button' | 'checkbox' | 'separator' | 'submenu' | 'slider' | 'list' | 'search';
+export type MenuItemType = 'button' | 'checkbox' | 'separator' | 'submenu' | 'slider' | 'list' | 'search' | 'info';
 
 export interface MenuItemBase {
   id: string;
@@ -58,7 +58,17 @@ export interface MenuSearchItem extends MenuItemBase {
   placeholder?: string;
 }
 
-export type MenuItem = MenuButton | MenuCheckbox | MenuSeparator | MenuSubmenu | MenuSlider | MenuList | MenuSearchItem;
+export interface MenuInfoData {
+  label: string;
+  value: string;
+}
+
+export interface MenuInfoButton extends MenuItemBase {
+  type: 'info';
+  infoData: MenuInfoData[];
+}
+
+export type MenuItem = MenuButton | MenuCheckbox | MenuSeparator | MenuSubmenu | MenuSlider | MenuList | MenuSearchItem | MenuInfoButton;
 
 export interface MenuDefinition {
   id: string;

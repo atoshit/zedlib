@@ -11,10 +11,12 @@ import { MenuItemSubmenu } from './MenuItemSubmenu';
 import { MenuItemList } from './MenuItemList';
 import { MenuItemSlider } from './MenuItemSlider';
 import { MenuItemSearch } from './MenuItemSearch';
+import { MenuItemInfo } from './MenuItemInfo';
+import { MenuInfoPanel } from './MenuInfoPanel';
 import { MenuSeparatorItem } from './MenuSeparator';
-import type { MenuItem } from '@/types';
+import type { MenuItem, MenuInfoButton } from '@/types';
 
-const DEFAULT_COLOR = '#6366f1';
+const DEFAULT_COLOR = '#e74c3c';
 const ITEM_HEIGHT = 40;
 const SEPARATOR_HEIGHT = 9;
 const MAX_HEIGHT = 400;
@@ -236,12 +238,26 @@ export function Menu() {
               {...commonProps}
             />
           );
+        case 'info':
+          return (
+            <MenuItemInfo
+              item={item}
+              isActive={isActive}
+              onHover={() => setActiveIndex(currentMenuId!, selectableIdx)}
+            />
+          );
         default:
           return null;
       }
     },
     [activeIndex, currentMenuId, setActiveIndex, selectCurrent, isSearchActive, searchQuery],
   );
+
+  const activeInfoItem = useMemo<MenuInfoButton | null>(() => {
+    const selectableItems = displayItems.filter((i) => i.type !== 'separator');
+    const item = selectableItems[activeIndex];
+    return item?.type === 'info' ? item : null;
+  }, [displayItems, activeIndex]);
 
   if (!visible || !currentMenu) return null;
 
@@ -262,7 +278,7 @@ export function Menu() {
         exit={{ opacity: 0, x: -20, scale: 0.97 }}
         transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
-        <div className="rounded-lg overflow-hidden shadow-2xl shadow-black/60">
+        <div className="relative rounded-lg overflow-hidden shadow-2xl shadow-black/60">
           <MenuHeader
             title={currentMenu.title}
             banner={menuBanner}
@@ -307,6 +323,11 @@ export function Menu() {
             </div>
           </div>
         </div>
+        <AnimatePresence>
+          {activeInfoItem && (
+            <MenuInfoPanel data={activeInfoItem.infoData} color={menuColor} />
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );
