@@ -22,4 +22,9 @@ client_scripts {
     'lua/api/dialog.lua',
     'lua/api/config.lua',
     'lua/api/exports.lua',
+    'lua/events/notification.lua',
+}
+
+server_scripts {
+    'lua/events/notification_server.lua',
 }

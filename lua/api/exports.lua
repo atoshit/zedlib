@@ -16,10 +16,6 @@ exports('RemoveMenu', UI.RemoveMenu)
 
 -- Notification
 exports('Notify', UI.Notify)
-exports('NotifySuccess', UI.NotifySuccess)
-exports('NotifyError', UI.NotifyError)
-exports('NotifyWarning', UI.NotifyWarning)
-exports('NotifyInfo', UI.NotifyInfo)
 exports('ClearNotifications', UI.ClearNotifications)
 
 -- Dialog

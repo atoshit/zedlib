@@ -194,7 +194,7 @@ zed.AddButton("main", {
         if DoesBlipExist(blip) then
             local coords = GetBlipInfoIdCoord(blip)
             SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z)
-            zed.NotifySuccess("Teleported", "You have been teleported to the marker")
+            zed.Notify({ title = "Teleported", message = "You have been teleported to the marker" })
         end
     end
 })
@@ -449,7 +449,7 @@ zed.AddButton("settings", {
     label = "Reset Defaults",
     icon = "rotate",
     onSelect = function()
-        zed.NotifyInfo("Reset", "Settings restored to defaults")
+        zed.Notify({ title = "Reset", message = "Settings restored to defaults" })
     end
 })
 
@@ -495,42 +495,76 @@ zed.RemoveMenu("main")
 
 #### Generic Notification
 
-```lua
-zed.Notify("success", "Purchase Complete", nil, "You bought a Zentorno for $725,000", 5000)
+All notification functions take a single **data table**. You only pass the fields you need; no need for `nil` placeholders.
 
--- With subtitle (3rd param) and custom accent color
-zed.Notify("info", "Custom", "Category", "Message here", 5000, "#3498db")
+```lua
+-- Generic notification (specify type in data)
+zed.Notify({
+    type = "success",
+    title = "Purchase Complete",
+    message = "You bought a Zentorno for $725,000",
+    duration = 5000
+})
+
+-- With subtitle, color and image (omit what you don't need)
+zed.Notify({
+    type = "info",
+    title = "Custom",
+    subtitle = "Category",
+    message = "Message here",
+    duration = 5000,
+    color = "#3498db",
+    image = "https://example.com/icon.png"
+})
 ```
 
-| Parameter  | Type   | Required | Default | Description |
+| Field      | Type   | Required | Default | Description |
 |------------|--------|----------|---------|-------------|
-| `type`     | string | yes      | —       | One of `"success"`, `"error"`, `"warning"`, `"info"` |
 | `title`    | string | yes      | —       | Notification title |
-| `subtitle` | string | no       | nil     | Subtitle below the title |
-| `message`  | string | no       | nil     | Body text (description) |
+| `type`     | string | no       | `"info"` | One of `"success"`, `"error"`, `"warning"`, `"info"` |
+| `subtitle` | string | no       | —       | Subtitle below the title |
+| `message`  | string | no       | —       | Body text (description) |
 | `duration` | number | no       | 5000    | Display time in milliseconds |
-| `color`    | string | no       | type default | Accent color (hex, e.g. `"#e74c3c"`) |
-| `image`    | string | no       | nil     | Image URL shown at top-left of the notification |
-
-#### Shortcut Functions
-
-```lua
-zed.NotifySuccess("Saved", nil, "Your progress has been saved")
-zed.NotifyError("Failed", nil, "Could not connect to the database")
-zed.NotifyWarning("Low Health", nil, "Your health is below 25%")
-zed.NotifyInfo("Tip", nil, "Press E to interact with nearby objects")
-
--- With subtitle (2nd param) and optional duration/color/image
-zed.NotifySuccess("Done", "Settings", "Saved", 5000, "#22c55e")
-```
-
-Each shortcut accepts `(title, subtitle?, message?, duration?, color?, image?)`.
+| `color`    | string | no       | —       | Accent color (hex, e.g. `"#e74c3c"`) |
+| `image`    | string | no       | —       | Image URL shown at top-left of the notification |
 
 #### Clear All Notifications
 
 ```lua
 zed.ClearNotifications()
 ```
+
+#### Notifications depuis le serveur (events)
+
+Depuis le **serveur**, vous pouvez envoyer une notification à un joueur ou à tous les joueurs via les exports. Le client reçoit l’event `zedlib:notify` et affiche la notification. Aucun event n’est exposé pour qu’un client déclenche un envoi à tous (évite les abus).
+
+**Côté serveur** (dans un script `server_scripts` ou depuis un autre resource) :
+
+```lua
+-- Envoyer à un joueur (par son server ID)
+exports['zedlib']:Notify(source, {
+    title = "Bienvenue",
+    type = "info",
+    message = "Vous êtes connecté.",
+    duration = 5000
+})
+
+-- Envoyer à tous les joueurs
+exports['zedlib']:NotifyToAll({
+    title = "Annonce",
+    subtitle = "Serveur",
+    message = "Redémarrage dans 5 minutes.",
+    type = "warning",
+    duration = 10000
+})
+```
+
+| Export          | Paramètres        | Description |
+|-----------------|-------------------|-------------|
+| `Notify(source, data)`   | `source` = server ID, `data` = table (title, type?, subtitle?, message?, duration?, color?, image?) | Envoie une notification à un joueur. |
+| `NotifyToAll(data)`      | `data` = même table que ci-dessus | Envoie une notification à tous les joueurs connectés. |
+
+Les champs de `data` sont les mêmes que pour les notifications côté client (voir tableau plus haut). Seul le **serveur** peut appeler ces exports ; un client ne peut pas déclencher un envoi à tous.
 
 ---
 
@@ -743,12 +777,10 @@ Hold arrow keys for auto-repeat (300ms initial delay, 80ms repeat interval).
 
 | Function | Parameters | Returns | Description |
 |----------|-------------|---------|-------------|
-| `Notify` | `type, title, subtitle?, message?, duration?, color?, image?` | — | Show a notification |
-| `NotifySuccess` | `title, subtitle?, message?, duration?, color?, image?` | — | Show a success notification |
-| `NotifyError` | `title, subtitle?, message?, duration?, color?, image?` | — | Show an error notification |
-| `NotifyWarning` | `title, subtitle?, message?, duration?, color?, image?` | — | Show a warning notification |
-| `NotifyInfo` | `title, subtitle?, message?, duration?, color?, image?` | — | Show an info notification |
+| `Notify` | `data: { title, type?, subtitle?, message?, duration?, color?, image? }` | — | Show a notification |
 | `ClearNotifications` | — | — | Dismiss all notifications |
+
+**Exports serveur** (depuis un script côté serveur) : `exports['zedlib']:Notify(source, data)` pour un joueur, `exports['zedlib']:NotifyToAll(data)` pour tous. Voir [Notifications depuis le serveur](#notifications-depuis-le-serveur-events).
 
 ### Dialog Functions
 
@@ -787,7 +819,7 @@ RegisterCommand("mymenu", function()
         description = "Restore full health",
         onSelect = function()
             SetEntityHealth(PlayerPedId(), 200)
-            zed.NotifySuccess("Healed", "Health restored to full")
+            zed.Notify({ title = "Healed", message = "Health restored to full" })
         end
     })
 
@@ -797,7 +829,7 @@ RegisterCommand("mymenu", function()
         checked = false,
         onChange = function(checked)
             SetEntityVisible(PlayerPedId(), not checked, false)
-            zed.NotifyInfo("Visibility", checked and "You are now invisible" or "You are now visible")
+            zed.Notify({ title = "Visibility", message = checked and "You are now invisible" or "You are now visible" })
         end
     })
 
@@ -882,10 +914,10 @@ RegisterCommand("mymenu", function()
             zed.CloseMenu()
             zed.Confirm("Delete Vehicles?", "This will remove all vehicles in a 50m radius.",
                 function()
-                    zed.NotifySuccess("Deleted", "Nearby vehicles have been removed")
+                    zed.Notify({ title = "Deleted", message = "Nearby vehicles have been removed" })
                 end,
                 function()
-                    zed.NotifyInfo("Cancelled", "No vehicles were deleted")
+                    zed.Notify({ title = "Cancelled", message = "No vehicles were deleted" })
                 end
             )
         end
@@ -937,7 +969,7 @@ zedlib/
 │   └── api/                  # Lua API split by component
 │       ├── _init.lua         # UI table, ZedInternal (generateId, fireCallback)
 │       ├── menu.lua          # CreateMenu, AddButton, AddCheckbox, AddCategory, AddInfoButton, etc.
-│       ├── notification.lua # Notify, NotifySuccess/Error/Warning/Info, ClearNotifications
+│       ├── notification.lua # Notify, ClearNotifications
 │       ├── dialog.lua        # Dialog, Confirm, CloseDialog
 │       ├── config.lua        # SetConfig
 │       └── exports.lua       # FiveM exports for all functions
