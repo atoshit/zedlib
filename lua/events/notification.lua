@@ -1,6 +1,3 @@
--- Client: receive notification from server and display via NUI.
--- Only this script registers the event; no client can trigger a broadcast.
-
 local NOTIF_TYPES <const> = { success = true, error = true, warning = true, info = true }
 
 RegisterNetEvent('zedlib:notify', function(data)
