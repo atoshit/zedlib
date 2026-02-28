@@ -112,6 +112,7 @@ function UI.AddSubMenu(menuId, subMenuId, label, opts)
             id = itemId,
             type = 'submenu',
             label = label,
+            description = opts.description or nil,
             icon = opts.icon or nil,
             disabled = opts.disabled or false,
             targetMenu = subMenuId,
@@ -134,6 +135,7 @@ function UI.AddCategory(menuId, opts)
             id = itemId,
             type = 'category',
             label = opts.label,
+            description = opts.description or nil,
             icon = opts.icon or nil,
             disabled = opts.disabled or false,
         }
@@ -154,6 +156,7 @@ function UI.AddSeparator(menuId, opts)
         item = {
             id = itemId,
             type = 'separator',
+            description = opts.description or nil,
             category = opts.category or nil,
         }
     })
@@ -252,6 +255,7 @@ function UI.AddSearchButton(menuId, opts)
             id = itemId,
             type = 'search',
             label = opts.label or 'Rechercher',
+            description = opts.description or nil,
             icon = opts.icon or 'magnifying-glass',
             placeholder = opts.placeholder or 'Tapez pour rechercher...',
             category = opts.category or nil,

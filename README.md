@@ -15,7 +15,7 @@ A production-ready, modular UI library for FiveM featuring a React-based NUI fro
   - [Notifications](#notifications)
   - [Dialogs](#dialogs)
   - [Configuration](#configuration)
-- [Keyboard Navigation](#keyboard-navigation)
+- [Keyboard and Mouse Navigation](#keyboard-and-mouse-navigation)
 - [Full API Reference](#full-api-reference)
 - [Complete Example](#complete-example)
 - [Development](#development)
@@ -27,7 +27,8 @@ A production-ready, modular UI library for FiveM featuring a React-based NUI fro
 ## Features
 
 ### Menu System
-- Fully navigable menus with keyboard controls
+- Fully navigable menus with **keyboard and mouse wheel**
+- **Description** option on all items (button, checkbox, list, slider, submenu, category, search, info, separator): when set, a panel below the menu shows that text for the focused item
 - **Button**, **checkbox**, **list** selector, **slider**, **separator**, **submenu**, **category**, and **info** items
 - **Categories**: expand/collapse groups of items in-place (e.g. "Actions on player" → Freeze, Kick, Ban); items can be assigned to a category and only show when it is expanded
 - **Info button**: hover or focus to show a side panel with label/value pairs (e.g. player name, group, job)
@@ -200,11 +201,11 @@ zed.AddButton("main", {
 })
 ```
 
-| Option     | Type     | Default | Description |
-|------------|----------|---------|-------------|
-| `label`    | string   | —       | Display text for the button |
-| `description` | string | nil   | Secondary text shown below the label |
-| `icon`     | string   | nil     | FontAwesome icon name (e.g. `"gear"`) or image URL |
+| Option       | Type     | Default | Description |
+|--------------|----------|---------|-------------|
+| `label`      | string   | —       | Display text for the button |
+| `description`| string   | nil     | Text shown in the description panel **below the menu** when this item is focused |
+| `icon`       | string   | nil     | FontAwesome icon name (e.g. `"gear"`) or image URL |
 | `id`       | string   | auto    | Custom unique identifier |
 | `disabled` | boolean  | false   | Prevents interaction when true |
 | `category` | string   | nil     | Category id: item is only visible when this category is expanded |
@@ -734,21 +735,23 @@ zed.SetConfig({
 
 ---
 
-## Keyboard Navigation
+## Keyboard and Mouse Navigation
 
 When a menu is open, the following controls are active. Weapon and attack controls are automatically disabled.
 
-| Key          | Action                            |
-|--------------|-----------------------------------|
-| `Arrow Up`   | Move selection up                 |
-| `Arrow Down` | Move selection down               |
-| `Enter`      | Select / Toggle current item      |
-| `Arrow Left` | Previous option (list) / Decrease (slider) |
-| `Arrow Right`| Next option (list) / Increase (slider) |
-| `Backspace`  | Go back to parent menu            |
-| `Escape`     | Close the menu entirely           |
+| Key / Input     | Action                            |
+|------------------|-----------------------------------|
+| `Arrow Up`       | Move selection up                 |
+| `Arrow Down`     | Move selection down               |
+| **Mouse wheel up**   | Move selection up            |
+| **Mouse wheel down** | Move selection down          |
+| `Enter`          | Select / Toggle current item      |
+| `Arrow Left`     | Previous option (list) / Decrease (slider) |
+| `Arrow Right`    | Next option (list) / Increase (slider) |
+| `Backspace`      | Go back to parent menu            |
+| `Escape`         | Close the menu entirely           |
 
-Hold arrow keys for auto-repeat (300ms initial delay, 80ms repeat interval).
+Hold arrow keys for auto-repeat (300ms initial delay, 80ms repeat interval). The mouse wheel can also be used to move the selection when the menu is open.
 
 ---
 

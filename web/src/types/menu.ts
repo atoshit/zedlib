@@ -26,6 +26,7 @@ export interface MenuCheckbox extends MenuItemBase {
 export interface MenuSeparator {
   id: string;
   type: 'separator';
+  description?: string;
   category?: string;
 }
 
@@ -76,6 +77,7 @@ export interface MenuCategory {
   id: string;
   type: 'category';
   label: string;
+  description?: string;
   icon?: string;
   disabled?: boolean;
 }

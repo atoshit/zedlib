@@ -25,6 +25,13 @@ export function MenuHeader({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15 }}
       >
+        {title && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center">
+            <h2 className="text-[35px] font-bold text-white tracking-wide uppercase drop-shadow-lg">
+              {title}
+            </h2>
+          </div>
+        )}
         <img
           src={banner}
           alt=""

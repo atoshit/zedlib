@@ -36,6 +36,8 @@ export function Menu() {
     getVisibleItems,
     setActiveIndex,
     selectCurrent,
+    moveUp,
+    moveDown,
   } = useMenuStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -274,6 +276,14 @@ export function Menu() {
     return item?.type === 'info' ? item : null;
   }, [displayItems, activeIndex]);
 
+  const activeDescription = useMemo(() => {
+    const selectableItems = displayItems.filter((i) => i.type !== 'separator');
+    const item = selectableItems[activeIndex];
+    return item && 'description' in item && typeof item.description === 'string' && item.description.trim() !== ''
+      ? item.description.trim()
+      : null;
+  }, [displayItems, activeIndex]);
+
   if (!visible || !currentMenu) return null;
 
   const totalHeight = displayItems.reduce(
@@ -308,6 +318,12 @@ export function Menu() {
             className="overflow-y-auto bg-black/70"
             style={{ height: containerHeight, scrollbarWidth: 'none' }}
             role="menu"
+            onWheel={(e) => {
+              if (isSearchActive) return;
+              e.preventDefault();
+              if (e.deltaY < 0) moveUp();
+              else if (e.deltaY > 0) moveDown();
+            }}
           >
             <div
               style={{
@@ -338,6 +354,16 @@ export function Menu() {
             </div>
           </div>
         </div>
+
+        {activeDescription && (
+          <div
+            className="mt-2 px-3 py-2.5 rounded-lg bg-black/70 border border-white/10 text-white/80 text-xs leading-relaxed"
+            style={{ borderLeftColor: menuColor, borderLeftWidth: '3px' }}
+          >
+            {activeDescription}
+          </div>
+        )}
+
         <AnimatePresence>
           {activeInfoItem && (
             <MenuInfoPanel data={activeInfoItem.infoData} color={menuColor} />

@@ -119,11 +119,13 @@ end
 -- 172 = Arrow Up, 173 = Arrow Down
 -- 174 = Arrow Left, 175 = Arrow Right
 -- 176 = Enter, 177 = Backspace
+-- 14 = Scroll down (weapon wheel next), 15 = Scroll up (weapon wheel prev)
 
 local disabledControls = {
     24, 25,     -- Attack / Aim
     47,         -- Weapon
     58,         -- Weapon throw
+    14, 15,     -- Mouse wheel (weapon wheel next/prev) - used for menu navigation
 }
 
 CreateThread(function()
@@ -146,6 +148,13 @@ CreateThread(function()
 
                 if isJustPressed(177) then
                     SendUI('zedlib:menuGoBack')
+                end
+
+                -- Mouse wheel: scroll up = move up, scroll down = move down
+                if isJustPressed(15) then
+                    SendUI('zedlib:menuMoveUp')
+                elseif isJustPressed(14) then
+                    SendUI('zedlib:menuMoveDown')
                 end
             end
 

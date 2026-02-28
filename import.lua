@@ -26,6 +26,7 @@
 
 ---@class ZedButtonOptions
 ---@field label string Display label for the button
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field icon? string FontAwesome icon name (e.g. 'gear') or image URL (png/jpg)
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the button is disabled (default: false)
@@ -35,6 +36,7 @@
 
 ---@class ZedCheckboxOptions
 ---@field label string Display label for the checkbox
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the checkbox is disabled (default: false)
@@ -43,6 +45,7 @@
 ---@field onChange? fun(checked: boolean) Callback fired when the checkbox is toggled
 
 ---@class ZedSubMenuOptions
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the submenu button is disabled (default: false)
@@ -53,15 +56,18 @@
 
 ---@class ZedCategoryOptions
 ---@field label string Display label for the category header
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field id string Category id (used in opts.category when adding items to this category)
 ---@field icon? string FontAwesome icon name or image URL
 ---@field disabled? boolean Whether the category header is disabled (default: false)
 
 ---@class ZedSeparatorOptions
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field category? string Category id: separator is only visible when this category is expanded
 
 ---@class ZedSearchButtonOptions
 ---@field label? string Display label (default: 'Rechercher')
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field icon? string FontAwesome icon name or image URL (default: 'magnifying-glass')
 ---@field placeholder? string Placeholder text shown when search is active (default: 'Tapez pour rechercher...')
 ---@field id? string Custom unique identifier for this item
@@ -73,6 +79,7 @@
 
 ---@class ZedInfoButtonOptions
 ---@field label string Display label for the info button
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the info button is disabled (default: false)
@@ -85,6 +92,7 @@
 
 ---@class ZedListOptions
 ---@field label string Display label for the list
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the list is disabled (default: false)
@@ -95,6 +103,7 @@
 
 ---@class ZedSliderOptions
 ---@field label string Display label for the slider
+---@field description? string Text shown in the description panel below the menu when this item is focused
 ---@field icon? string FontAwesome icon name or image URL
 ---@field id? string Custom unique identifier for this item
 ---@field disabled? boolean Whether the slider is disabled (default: false)
