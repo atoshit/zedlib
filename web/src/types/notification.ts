@@ -13,6 +13,7 @@ export interface NotificationData {
   color?: string;
   position?: NotificationPosition;
   showProgress?: boolean;
+  count?: number;
 }
 
 export interface NotificationConfig {

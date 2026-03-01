@@ -15,6 +15,8 @@ export interface MenuButton extends MenuItemBase {
   type: 'button';
   onSelect?: string;
   metadata?: Record<string, unknown>;
+  rightLabel?: string;
+  rightLabelColor?: string;
 }
 
 export interface MenuCheckbox extends MenuItemBase {

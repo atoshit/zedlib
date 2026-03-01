@@ -23,6 +23,12 @@ export function NotificationItem({ notification }: NotificationItemProps) {
   const iconName = notification.icon || config.icon;
   const duration = notification.duration ?? 5000;
 
+  const count = notification.count ?? 1;
+
+  useEffect(() => {
+    setProgress(100);
+  }, [count]);
+
   useEffect(() => {
     if (!notification.showProgress || duration <= 0) return;
 
@@ -33,7 +39,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
     }, interval);
 
     return () => clearInterval(timer);
-  }, [duration, notification.showProgress]);
+  }, [duration, notification.showProgress, count]);
 
   return (
     <motion.div

@@ -42,6 +42,8 @@ function UI.AddButton(menuId, opts)
             onSelect = callbackAction,
             metadata = opts.metadata or nil,
             category = opts.category or nil,
+            rightLabel = opts.rightLabel or nil,
+            rightLabelColor = opts.rightLabelColor or nil,
         }
     })
 

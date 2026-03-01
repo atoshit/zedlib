@@ -23,17 +23,27 @@ export function MenuItemButton({ item, isActive, onSelect, onHover }: MenuItemBu
       role="menuitem"
       aria-disabled={item.disabled}
     >
-      <div className="flex items-center gap-2.5">
-        {item.icon && (
-          <MenuIcon
-            icon={item.icon}
-            className="text-sm w-4 text-center"
-            style={{ color: isActive ? 'var(--menu-color)' : 'rgba(255,255,255,0.5)' }}
-          />
+      <div className="flex items-center justify-between w-full">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {item.icon && (
+            <MenuIcon
+              icon={item.icon}
+              className="text-sm w-4 text-center"
+              style={{ color: isActive ? 'var(--menu-color)' : 'rgba(255,255,255,0.5)' }}
+            />
+          )}
+          <span className="text-[13px] font-medium text-white truncate">
+            {item.label}
+          </span>
+        </div>
+        {item.rightLabel && (
+          <span
+            className="text-[12px] font-medium ml-2 flex-shrink-0"
+            style={{ color: item.rightLabelColor || 'rgba(255,255,255,0.5)' }}
+          >
+            {item.rightLabel}
+          </span>
         )}
-        <span className="text-[13px] font-medium text-white">
-          {item.label}
-        </span>
       </div>
     </div>
   );

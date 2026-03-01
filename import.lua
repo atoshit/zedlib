@@ -32,6 +32,8 @@
 ---@field disabled? boolean Whether the button is disabled (default: false)
 ---@field category? string Category id: item is only visible when this category is expanded
 ---@field metadata? table Arbitrary data passed to the onSelect callback
+---@field rightLabel? string Text displayed on the right side of the button (e.g. a price like '$500')
+---@field rightLabelColor? string Color of the rightLabel text (hex, e.g. '#22c55e')
 ---@field onSelect? fun(data: table) Callback fired when the button is selected
 
 ---@class ZedCheckboxOptions

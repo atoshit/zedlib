@@ -190,6 +190,8 @@ zed.AddButton("main", {
     label = "Teleport to Marker",
     description = "Teleports you to your map marker",
     icon = "location-dot",
+    rightLabel = "$725,000",
+    rightLabelColor = "#22c55e",
     onSelect = function()
         local blip = GetFirstBlipInfoId(8)
         if DoesBlipExist(blip) then
@@ -206,6 +208,8 @@ zed.AddButton("main", {
 | `label`      | string   | —       | Display text for the button |
 | `description`| string   | nil     | Text shown in the description panel **below the menu** when this item is focused |
 | `icon`       | string   | nil     | FontAwesome icon name (e.g. `"gear"`) or image URL |
+| `rightLabel` | string   | nil     | Display text in the right button |
+| `rightLabelColor` | string   | nil     | Color of the right label |
 | `id`       | string   | auto    | Custom unique identifier |
 | `disabled` | boolean  | false   | Prevents interaction when true |
 | `category` | string   | nil     | Category id: item is only visible when this category is expanded |
