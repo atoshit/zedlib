@@ -227,11 +227,11 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     const search = searchState[menuId];
     const q = search?.active ? search.query.toLowerCase() : '';
     if (!q) return byCategory;
+    // When searching: keep the search bar, but hide separators and only
+    // include items whose label matches the query.
     return byCategory.filter(
       (i) =>
         i.type === 'search' ||
-        i.type === 'separator' ||
-        i.type === 'category' ||
         ('label' in i && i.label.toLowerCase().includes(q))
     );
   },

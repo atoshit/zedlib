@@ -162,8 +162,8 @@ CreateThread(function()
 
         if contextReady and not (UI and UI.IsMenuOpen()) then
             DisableControlAction(0, 19, true)
-
-            if IsDisabledControlJustPressed(0, 19) then
+            -- Use Pressed so we still detect ALT after a 150ms wait (JustPressed would be missed)
+            if IsDisabledControlPressed(0, 19) then
                 isContextTargeting = true
 
                 while IsDisabledControlPressed(0, 19) do
@@ -242,7 +242,8 @@ CreateThread(function()
             end
         end
 
-        Wait(contextReady and 0 or 500)
+        -- When context is enabled but ALT not held, poll every 150ms instead of every frame
+        Wait(contextReady and 150 or 500)
     end
 end)
 

@@ -925,15 +925,29 @@ zed.Interact({
     end,
 })
 
--- On a ped (coords update every frame; use target ped entity)
+-- Attach to a specific entity (prompt follows the entity)
 zed.Interact({
-    coords = function() return GetEntityCoords(targetPed) + vector3(0, 0, 1.0) end,
-    label = "Dévaliser l'individu",
+    entity = myPed,
+    label = "Parler au PNJ",
     key = "E",
-    onSelect = function()
-        -- rob the ped
+    onSelect = function() end,
+})
+
+-- Attach to the closest entity of a type (all peds, all vehicles, or all objects in range)
+-- onSelect(entity) receives the entity you interacted with (nil if using coords only)
+zed.Interact({
+    type = "ped",
+    label = "Fouiller",
+    key = "E",
+    distance = 2.0,
+    onSelect = function(entity)
+        if entity then
+            -- e.g. TaskStartScenarioInPlace(entity, ...) or DeleteEntity(entity)
+        end
     end,
 })
+zed.Interact({ type = "vehicle", label = "Ouvrir le coffre", key = "E", onSelect = function(veh) SetVehicleDoorOpen(veh, 5, false, false) end })
+zed.Interact({ type = "object", label = "Utiliser", key = "E", onSelect = function() end })
 ```
 
 #### Without key
@@ -952,13 +966,15 @@ zed.Interact({
 
 | Field      | Type           | Default | Description |
 |------------|----------------|---------|-------------|
-| `coords`   | vector3 or fun | —       | World position, or function returning vector3 (e.g. for moving entities) |
+| `coords`   | vector3 or fun | —       | World position, or function returning vector3. Omit if using `entity` or `type`. |
+| `entity`   | number         | nil     | Specific entity handle. Prompt is shown on this entity and follows it. |
+| `type`     | string         | nil     | `"ped"`, `"vehicle"`, or `"object"`. Prompt is shown on the **closest** entity of this type within `distance`. |
 | `label`    | string         | —       | Text displayed next to the key |
 | `key`      | string         | nil     | Key to show (e.g. `"E"`). If omitted, no key box is shown |
-| `distance` | number         | 2.0     | Max distance to show the prompt |
-| `onSelect` | function       | nil     | Callback when the player presses the key while in range |
+| `distance` | number         | 2.0     | Max distance to show the prompt (and for `type`, search radius for closest entity) |
+| `onSelect` | function       | nil     | Callback when the player presses the key: `onSelect(entity)`. `entity` is the targeted entity (nil if using `coords` only). |
 
-Supported key labels: `E`, `G`, `F`, `R`, `Q`, `Z`, `X`, `C`, `T`, `Y` (mapped to default controls).
+You must set exactly one of `coords`, `entity`, or `type`. Supported key labels: `E`, `G`, `F`, `R`, `Q`, `Z`, `X`, `C`, `T`, `Y`.
 
 #### Clear
 
@@ -968,7 +984,7 @@ zed.ClearInteract()
 
 #### InteractProgress (hold to complete)
 
-Same as Interact but the player must **hold** the key for a given duration. A progress bar appears below the label while holding; `onSelect` runs only when the duration is complete, and `onCancel` runs if they release early or leave range.
+Same as Interact but the player must **hold** the key for a given duration. A progress bar appears below the label while holding; `onSelect(entity)` runs when the duration is complete, and `onCancel(entity)` runs if they release early or leave range. In both callbacks, `entity` is the entity the prompt was attached to (nil if using `coords` only).
 
 ```lua
 zed.InteractProgress({
@@ -1003,14 +1019,16 @@ zed.InteractProgress({
 
 | Field             | Type     | Default | Description |
 |-------------------|----------|---------|-------------|
-| `coords`          | vector3 or fun | —   | World position (or function for moving entities) |
+| `coords`          | vector3 or fun | —   | World position (or function). Omit if using `entity` or `type`. |
+| `entity`          | number   | nil     | Specific entity handle. Prompt is shown on this entity. |
+| `type`            | string   | nil     | `"ped"`, `"vehicle"`, or `"object"`. Prompt on the closest entity of this type in range. |
 | `label`           | string   | —       | Text displayed above the progress bar |
 | `key`             | string   | nil     | Key to show (e.g. `"E"`). Omit for no key box |
 | `distance`        | number   | 2.0     | Max distance to show the prompt |
 | `duration`        | number   | —       | Time in ms the player must hold the key |
 | `removeOnComplete`| boolean  | true    | If true, the prompt is removed after the action. If false, it stays so the player can repeat. |
-| `onSelect`        | function | nil     | Called when the player holds for the full duration |
-| `onCancel`        | function | nil     | Called when the player releases before completion or leaves range |
+| `onSelect`        | function | nil     | Called when the player holds for the full duration: `onSelect(entity)` |
+| `onCancel`        | function | nil     | Called when the player releases before completion or leaves range: `onCancel(entity)` |
 
 ---
 

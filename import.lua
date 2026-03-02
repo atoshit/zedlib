@@ -23,8 +23,8 @@
 ---@field ProgressBar fun(opts: ZedProgressBarOptions): boolean
 ---@field CancelProgressBar fun()
 ---@field IsProgressActive fun(): boolean
----@field SetInteract fun(opts: ZedInteractOptions)
----@field ClearInteract fun()
+---@field SetInteract fun(opts: ZedInteractOptions): number|nil Returns id to clear this interact with ClearInteract(id). Nil if opts invalid.
+---@field ClearInteract fun(id?: number) Clear one interact (pass id from SetInteract) or all (omit id).
 ---@field SetInteractProgress fun(opts: ZedInteractProgressOptions)
 ---@field ClearInteractProgress fun()
 ---@field AddContextOption fun(opts: ZedContextOptionData): string
@@ -183,21 +183,25 @@
 ---@field mouse? boolean Disable camera/mouse
 
 ---@class ZedInteractOptions
----@field coords vector3|fun():vector3 World position (or function returning it, e.g. for peds)
+---@field coords? vector3|fun():vector3 World position (or function returning it). Omit if using entity or type.
+---@field entity? number Specific entity handle. Prompt is shown on this entity (coords + offset).
+---@field type? 'ped'|'vehicle'|'object' Entity type: prompt is shown on the closest entity of this type in range.
 ---@field label string Text displayed next to the key
 ---@field key? string Key to show (e.g. 'E'). If omitted, no key box is shown
 ---@field distance? number Max distance to show the prompt (default: 2.0)
----@field onSelect? function Callback when the player presses the key while in range
+---@field onSelect? function Callback when the player presses the key: onSelect(entity). entity is the targeted entity (nil if using coords only).
 
 ---@class ZedInteractProgressOptions
----@field coords vector3|fun():vector3 World position (or function returning it)
+---@field coords? vector3|fun():vector3 World position (or function returning it). Omit if using entity or type.
+---@field entity? number Specific entity handle. Prompt is shown on this entity.
+---@field type? 'ped'|'vehicle'|'object' Entity type: prompt is shown on the closest entity of this type in range.
 ---@field label string Text displayed in the prompt
 ---@field key? string Key to show (e.g. 'E'). If omitted, no key box is shown
 ---@field distance? number Max distance to show the prompt (default: 2.0)
 ---@field duration number Time in ms the player must hold the key
 ---@field removeOnComplete? boolean If true (default), the prompt is removed after the action. If false, it stays so the player can repeat the action.
----@field onSelect? function Callback when the player holds for the full duration
----@field onCancel? function Callback when the player releases the key before completion or leaves range
+---@field onSelect? function Callback when the player holds for the full duration: onSelect(entity). entity is the targeted entity (nil if using coords only).
+---@field onCancel? function Callback when the player releases early or leaves range: onCancel(entity). entity is the entity that was being targeted when the hold started.
 
 ---@class ZedDialogButton
 ---@field label string Display label for the button
@@ -510,15 +514,17 @@ function zed.IsProgressActive()
     return call('IsProgressActive')
 end
 
---- Set the current interact prompt (shown at coords when player is in range). Use ClearInteract to remove.
+--- Add an interact prompt. Multiple interacts can exist; the closest one in range is shown. Returns id to clear with ClearInteract(id).
 ---@param opts ZedInteractOptions
+---@return number|nil
 function zed.Interact(opts)
-    call('SetInteract', opts)
+    return call('SetInteract', opts)
 end
 
---- Clear the current interact prompt.
-function zed.ClearInteract()
-    call('ClearInteract')
+--- Clear one interact (pass id from Interact) or all (omit id).
+---@param id number|nil
+function zed.ClearInteract(id)
+    call('ClearInteract', id)
 end
 
 --- Set the current interact progress prompt (hold key for duration). onSelect when complete, onCancel when released early.
