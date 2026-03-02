@@ -1,5 +1,3 @@
-<img width="427" height="559" alt="image" src="https://github.com/user-attachments/assets/de2d8a0b-0032-4a53-9da7-98853dee5e2b" />
-
 # ZedLib - Modern FiveM UI Library
 
 A production-ready, modular UI library for FiveM featuring a React-based NUI frontend and a clean Lua API. Build beautiful menus, notifications, and dialogs with minimal code.
