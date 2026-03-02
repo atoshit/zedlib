@@ -4,6 +4,15 @@ local counters = ZedInternal.menuItemCounters
 
 local isMenuOpen = false
 
+local function buildInfoData(raw)
+    if not raw then return nil end
+    local out = {}
+    for i, row in ipairs(raw) do
+        out[i] = { label = row.label, value = tostring(row.value) }
+    end
+    return #out > 0 and out or nil
+end
+
 --- Create a menu
 ---@param id string The menu identifier
 ---@param title string The menu title
@@ -44,6 +53,7 @@ function UI.AddButton(menuId, opts)
             category = opts.category or nil,
             rightLabel = opts.rightLabel or nil,
             rightLabelColor = opts.rightLabelColor or nil,
+            infoData = buildInfoData(opts.infoData),
         }
     })
 
@@ -76,6 +86,7 @@ function UI.AddCheckbox(menuId, opts)
             checked = opts.checked or false,
             onChange = callbackAction,
             category = opts.category or nil,
+            infoData = buildInfoData(opts.infoData),
         }
     })
 
@@ -119,6 +130,7 @@ function UI.AddSubMenu(menuId, subMenuId, label, opts)
             disabled = opts.disabled or false,
             targetMenu = subMenuId,
             category = opts.category or nil,
+            infoData = buildInfoData(opts.infoData),
         }
     })
 
@@ -140,6 +152,7 @@ function UI.AddCategory(menuId, opts)
             description = opts.description or nil,
             icon = opts.icon or nil,
             disabled = opts.disabled or false,
+            infoData = buildInfoData(opts.infoData),
         }
     })
     return itemId
@@ -196,6 +209,7 @@ function UI.AddList(menuId, opts)
             currentIndex = (opts.currentIndex or 1) - 1,
             onChange = callbackAction,
             category = opts.category or nil,
+            infoData = buildInfoData(opts.infoData),
         }
     })
 
@@ -231,6 +245,7 @@ function UI.AddSlider(menuId, opts)
             value = opts.value or 0,
             onChange = callbackAction,
             category = opts.category or nil,
+            infoData = buildInfoData(opts.infoData),
         }
     })
 
@@ -261,6 +276,7 @@ function UI.AddSearchButton(menuId, opts)
             icon = opts.icon or 'magnifying-glass',
             placeholder = opts.placeholder or 'Tapez pour rechercher...',
             category = opts.category or nil,
+            infoData = buildInfoData(opts.infoData),
         }
     })
 

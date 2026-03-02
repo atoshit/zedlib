@@ -1,12 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useDialogStore } from '@/stores';
+import { useDialogStore, useConfigStore } from '@/stores';
 import { useKeyboard } from '@/hooks';
-
-const DEFAULT_COLOR = '#e74c3c';
 
 export function Dialog() {
   const { activeDialog, inputValues, setInputValue, submitDialog, closeDialog } = useDialogStore();
-  const accentColor = activeDialog?.color || DEFAULT_COLOR;
+  const globalAccent = useConfigStore((s) => s.config.accentColor);
+  const accentColor = activeDialog?.color || globalAccent;
 
   useKeyboard(
     {

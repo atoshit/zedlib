@@ -144,6 +144,10 @@ export function registerAllHandlers(): void {
     useConfigStore.getState().setConfig(data as Record<string, unknown>);
   });
 
+  registerNuiHandler('zedlib:setLibConfig', (data) => {
+    useConfigStore.getState().setConfig(data as Record<string, unknown>);
+  });
+
   registerNuiHandler('zedlib:copyToClipboard', (data) => {
     const { text } = data as { text: string };
     if (text) {

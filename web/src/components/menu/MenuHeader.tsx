@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useConfigStore } from '@/stores';
 
 interface MenuHeaderProps {
   title: string;
@@ -17,6 +18,8 @@ export function MenuHeader({
   activeIndex,
   canGoBack,
 }: MenuHeaderProps) {
+  const { showTitle, showItemCount } = useConfigStore((s) => s.config);
+
   if (banner) {
     return (
       <motion.div
@@ -25,7 +28,7 @@ export function MenuHeader({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15 }}
       >
-        {title && (
+        {showTitle && title && (
           <div className="absolute inset-0 z-10 flex items-center justify-center">
             <h2 className="text-[30px] font-bold text-white tracking-wide uppercase drop-shadow-lg">
               {title}
@@ -38,9 +41,11 @@ export function MenuHeader({
           className="w-full h-[100px] object-cover block"
           draggable={false}
         />
-        <span className="absolute bottom-2 right-3 text-[10px] text-white/60 font-mono drop-shadow-md">
-          {activeIndex + 1} / {itemCount}
-        </span>
+        {showItemCount && (
+          <span className="absolute bottom-2 right-3 text-[10px] text-white/60 font-mono drop-shadow-md">
+            {activeIndex + 1} / {itemCount}
+          </span>
+        )}
       </motion.div>
     );
   }
@@ -61,13 +66,17 @@ export function MenuHeader({
             {canGoBack && (
               <i className="fa-solid fa-arrow-left text-xs text-white/70" />
             )}
-            <h2 className="text-[15px] font-bold text-white tracking-wide uppercase">
-              {title}
-            </h2>
+            {showTitle && (
+              <h2 className="text-[15px] font-bold text-white tracking-wide uppercase">
+                {title}
+              </h2>
+            )}
           </div>
-          <span className="text-[10px] text-white/50 font-mono">
-            {activeIndex + 1} / {itemCount}
-          </span>
+          {showItemCount && (
+            <span className="text-[10px] text-white/50 font-mono">
+              {activeIndex + 1} / {itemCount}
+            </span>
+          )}
         </div>
       </div>
     </motion.div>

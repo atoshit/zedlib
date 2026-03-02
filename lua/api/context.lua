@@ -355,7 +355,7 @@ end)
 
 ZedInternal.contextGetEntityType = getEntityType
 ZedInternal.contextBuildOptions = buildOptionsForEntity
-ZedInternal.contextIsEnabled = function() return contextEnabled end
+ZedInternal.contextIsEnabled = function() return contextEnabled and ZedConfig.enableContextMenu end
 ZedInternal.contextIsOpen = function() return contextOpen end
 ZedInternal.contextOpenForEntity = UI.OpenContextForEntity
 ZedInternal.contextClose = UI.CloseContext

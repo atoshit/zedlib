@@ -1,8 +1,31 @@
 UI = {}
 
+if not ZedConfig then
+    ZedConfig = {}
+end
+ZedConfig.accentColor = ZedConfig.accentColor or '#e74c3c'
+if ZedConfig.accentColor:sub(1, 1) ~= '#' then
+    ZedConfig.accentColor = '#' .. ZedConfig.accentColor
+end
+if #ZedConfig.accentColor > 7 then
+    ZedConfig.accentColor = ZedConfig.accentColor:sub(1, 7)
+end
+ZedConfig.showTitle = ZedConfig.showTitle ~= false
+ZedConfig.showItemCount = ZedConfig.showItemCount ~= false
+ZedConfig.enableContextMenu = ZedConfig.enableContextMenu ~= false
+
 ZedInternal = {
     menuItemCounters = {},
 }
+
+CreateThread(function()
+    Wait(500)
+    SendUI('zedlib:setLibConfig', {
+        accentColor = ZedConfig.accentColor,
+        showTitle = ZedConfig.showTitle,
+        showItemCount = ZedConfig.showItemCount,
+    })
+end)
 
 ---@param menuId string
 ---@param prefix string

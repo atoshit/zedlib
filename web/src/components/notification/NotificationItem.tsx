@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useConfigStore } from '@/stores';
 import type { NotificationData } from '@/types';
 
 interface NotificationItemProps {
@@ -15,13 +16,14 @@ const typeConfig: Record<string, { icon: string }> = {
 
 const IMAGE_SIZE = 56;
 const NOTIF_WIDTH = 278;
-const NOTIF_ACCENT_COLOR = '#ef4444'; // Rouge pour tout (barre, icône) ; seul l'icône change selon le type
 
 export function NotificationItem({ notification }: NotificationItemProps) {
+  const accentColor = useConfigStore((s) => s.config.accentColor);
   const [progress, setProgress] = useState(100);
   const config = typeConfig[notification.type] ?? typeConfig.info;
   const iconName = notification.icon || config.icon;
   const duration = notification.duration ?? 5000;
+  const notifColor = notification.color || accentColor;
 
   const count = notification.count ?? 1;
 
@@ -79,11 +81,11 @@ export function NotificationItem({ notification }: NotificationItemProps) {
             </p>
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: `${NOTIF_ACCENT_COLOR}25` }}
+              style={{ backgroundColor: `${notifColor}25` }}
             >
               <i
                 className={`fa-solid fa-${iconName} text-xs`}
-                style={{ color: NOTIF_ACCENT_COLOR }}
+                style={{ color: notifColor }}
               />
             </div>
           </div>
@@ -119,7 +121,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
             className="h-full rounded-r"
             style={{
               width: `${progress}%`,
-              backgroundColor: NOTIF_ACCENT_COLOR,
+              backgroundColor: notifColor,
             }}
             transition={{ duration: 0.05, ease: 'linear' }}
           />

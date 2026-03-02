@@ -1,7 +1,7 @@
 import { useRef, useEffect, useMemo, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMenuStore } from '@/stores';
+import { useMenuStore, useConfigStore } from '@/stores';
 import { useMenuNavigation } from '@/hooks';
 import { isFiveM } from '@/nui';
 import { MenuHeader } from './MenuHeader';
@@ -15,9 +15,7 @@ import { MenuItemInfo } from './MenuItemInfo';
 import { MenuItemCategory } from './MenuItemCategory';
 import { MenuInfoPanel } from './MenuInfoPanel';
 import { MenuSeparatorItem } from './MenuSeparator';
-import type { MenuItem, MenuInfoButton } from '@/types';
-
-const DEFAULT_COLOR = '#e74c3c';
+import type { MenuItem, MenuInfoData } from '@/types';
 const ITEM_HEIGHT = 40;
 const SEPARATOR_HEIGHT = 9;
 const MAX_HEIGHT = 400;
@@ -39,6 +37,7 @@ export function Menu() {
     moveUp,
     moveDown,
   } = useMenuStore();
+  const globalAccent = useConfigStore((s) => s.config.accentColor);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentMenuId = navigation.stack[navigation.stack.length - 1];
@@ -48,7 +47,7 @@ export function Menu() {
 
   const rootMenuId = navigation.stack[0];
   const rootMenu = rootMenuId ? menus[rootMenuId] : undefined;
-  const menuColor = currentMenu?.color || rootMenu?.color || DEFAULT_COLOR;
+  const menuColor = currentMenu?.color || rootMenu?.color || globalAccent;
   const menuBanner = currentMenu?.banner || rootMenu?.banner;
 
   const searchInfo = currentMenuId ? searchState[currentMenuId] : undefined;
@@ -270,10 +269,13 @@ export function Menu() {
     [activeIndex, currentMenuId, setActiveIndex, selectCurrent, isSearchActive, searchQuery],
   );
 
-  const activeInfoItem = useMemo<MenuInfoButton | null>(() => {
+  const activeInfoData = useMemo<MenuInfoData[] | null>(() => {
     const selectableItems = displayItems.filter((i) => i.type !== 'separator');
     const item = selectableItems[activeIndex];
-    return item?.type === 'info' ? item : null;
+    if (!item) return null;
+    if (item.type === 'info') return item.infoData;
+    if ('infoData' in item && Array.isArray(item.infoData) && item.infoData.length > 0) return item.infoData;
+    return null;
   }, [displayItems, activeIndex]);
 
   const activeDescription = useMemo(() => {
@@ -307,7 +309,7 @@ export function Menu() {
           <MenuHeader
             title={currentMenu.title}
             banner={menuBanner}
-            color={menuColor !== DEFAULT_COLOR ? menuColor : undefined}
+            color={menuColor !== globalAccent ? menuColor : undefined}
             itemCount={selectableCount}
             activeIndex={activeIndex}
             canGoBack={canGoBack}
@@ -365,8 +367,8 @@ export function Menu() {
         )}
 
         <AnimatePresence>
-          {activeInfoItem && (
-            <MenuInfoPanel data={activeInfoItem.infoData} color={menuColor} />
+          {activeInfoData && (
+            <MenuInfoPanel data={activeInfoData} color={menuColor} />
           )}
         </AnimatePresence>
       </motion.div>

@@ -62,6 +62,7 @@
 ---@field metadata? table Arbitrary data passed to the onSelect callback
 ---@field rightLabel? string Text displayed on the right side of the button (e.g. a price like '$500')
 ---@field rightLabelColor? string Color of the rightLabel text (hex, e.g. '#22c55e')
+---@field infoData? ZedInfoData[] Info panel data shown on the right when this item is focused
 ---@field onSelect? fun(data: table) Callback fired when the button is selected
 
 ---@class ZedCheckboxOptions
@@ -72,6 +73,7 @@
 ---@field disabled? boolean Whether the checkbox is disabled (default: false)
 ---@field category? string Category id: item is only visible when this category is expanded
 ---@field checked? boolean Initial checked state (default: false)
+---@field infoData? ZedInfoData[] Info panel data shown on the right when this item is focused
 ---@field onChange? fun(checked: boolean) Callback fired when the checkbox is toggled
 
 ---@class ZedSubMenuOptions
@@ -83,6 +85,7 @@
 ---@field subtitle? string Title override for the submenu header (defaults to label)
 ---@field color? string Accent color override for this submenu
 ---@field banner? string Banner image URL override for this submenu
+---@field infoData? ZedInfoData[] Info panel data shown on the right when this item is focused
 
 ---@class ZedCategoryOptions
 ---@field label string Display label for the category header
@@ -90,6 +93,7 @@
 ---@field id string Category id (used in opts.category when adding items to this category)
 ---@field icon? string FontAwesome icon name or image URL
 ---@field disabled? boolean Whether the category header is disabled (default: false)
+---@field infoData? ZedInfoData[] Info panel data shown on the right when this item is focused
 
 ---@class ZedSeparatorOptions
 ---@field description? string Text shown in the description panel below the menu when this item is focused
@@ -129,6 +133,7 @@
 ---@field category? string Category id: item is only visible when this category is expanded
 ---@field items ZedListItem[]|string[] Array of options (strings are auto-converted to {label, value})
 ---@field currentIndex? number Initial selected index, 1-based (default: 1)
+---@field infoData? ZedInfoData[] Info panel data shown on the right when this item is focused
 ---@field onChange? fun(index: number, item: ZedListItem) Callback fired when the selected option changes. Index is 1-based.
 
 ---@class ZedSliderOptions
@@ -142,6 +147,7 @@
 ---@field max? number Maximum value (default: 100)
 ---@field step? number Step increment (default: 1)
 ---@field value? number Initial value (default: 0)
+---@field infoData? ZedInfoData[] Info panel data shown on the right when this item is focused
 ---@field onChange? fun(value: number) Callback fired when the slider value changes
 
 ---@class ZedDialogButton

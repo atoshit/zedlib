@@ -15,6 +15,7 @@ files {
 }
 
 client_scripts {
+    'config.lua',
     'lua/client.lua',
     'lua/api/_init.lua',
     'lua/api/menu.lua',

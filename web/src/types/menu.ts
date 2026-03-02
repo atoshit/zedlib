@@ -9,6 +9,8 @@ export interface MenuItemBase {
   icon?: string;
   /** If set, this item is only visible when the category with this id is expanded */
   category?: string;
+  /** Info data displayed in a side panel when this item is focused */
+  infoData?: MenuInfoData[];
 }
 
 export interface MenuButton extends MenuItemBase {
@@ -82,6 +84,7 @@ export interface MenuCategory {
   description?: string;
   icon?: string;
   disabled?: boolean;
+  infoData?: MenuInfoData[];
 }
 
 export type MenuItem = MenuButton | MenuCheckbox | MenuSeparator | MenuSubmenu | MenuSlider | MenuList | MenuSearchItem | MenuInfoButton | MenuCategory;

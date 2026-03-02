@@ -227,6 +227,7 @@ zed.AddButton("main", {
 | `disabled` | boolean  | false   | Prevents interaction when true |
 | `category` | string   | nil     | Category id: item is only visible when this category is expanded |
 | `metadata` | table    | nil     | Arbitrary data passed to the `onSelect` callback |
+| `infoData` | table    | nil     | Array of `{ label, value }` pairs shown in the info side panel when focused |
 | `onSelect` | function | nil     | Callback fired when the button is selected |
 
 ---
@@ -253,6 +254,7 @@ zed.AddCheckbox("main", {
 | `disabled` | boolean  | false   | Prevents interaction when true |
 | `category` | string   | nil     | Category id: item only visible when this category is expanded |
 | `checked`  | boolean  | false   | Initial checked state |
+| `infoData` | table    | nil     | Array of `{ label, value }` pairs shown in the info side panel when focused |
 | `onChange`  | function | nil     | Callback receiving the new `checked` boolean |
 
 ---
@@ -300,6 +302,7 @@ zed.AddList("main", {
 | `category`    | string   | nil     | Category id: item only visible when this category is expanded |
 | `items`       | table    | —       | Array of `{ label, value }` tables or plain strings |
 | `currentIndex`| number   | 1       | Initial selected index (1-based) |
+| `infoData`    | table    | nil     | Array of `{ label, value }` pairs shown in the info side panel when focused |
 | `onChange`     | function | nil     | Callback receiving `(index, item)` — index is 1-based |
 
 ---
@@ -334,6 +337,7 @@ zed.AddSlider("main", {
 | `max`     | number   | 100     | Maximum value |
 | `step`    | number   | 1       | Step increment |
 | `value`   | number   | 0       | Initial value |
+| `infoData`| table    | nil     | Array of `{ label, value }` pairs shown in the info side panel when focused |
 | `onChange` | function | nil    | Callback receiving the new `value` |
 
 ---
@@ -415,6 +419,33 @@ zed.AddInfoButton("main", {
 | `category` | string | nil     | Category id: item only visible when this category is expanded |
 | `data`     | table  | —       | Array of `{ label, value }` pairs shown in the side panel |
 
+> **Tip:** You don't need a dedicated `AddInfoButton` to show an info panel. All item types (button, checkbox, submenu, list, slider, category) support an `infoData` option that shows the same side panel when focused:
+
+```lua
+zed.AddSubMenu("main", "player_actions", "John Doe", {
+    icon = "user",
+    infoData = {
+        { label = "Name",  value = "John Doe" },
+        { label = "Group", value = "Admin" },
+        { label = "Job",   value = "Police" },
+        { label = "Money", value = "$12,500" },
+    }
+})
+
+zed.AddButton("main", {
+    label = "Sell Vehicle",
+    icon = "car",
+    rightLabel = "$50,000",
+    rightLabelColor = "#22c55e",
+    infoData = {
+        { label = "Model",   value = "Zentorno" },
+        { label = "Plate",   value = "ZED-1337" },
+        { label = "Fuel",    value = "87%" },
+    },
+    onSelect = function() end
+})
+```
+
 ---
 
 #### Adding a Search Button
@@ -486,6 +517,7 @@ zed.OpenMenu("main")
 | `subtitle` | string | label   | Title override for the submenu header |
 | `color`    | string | nil     | Accent color override (hex) |
 | `banner`   | string | nil     | Banner image URL override |
+| `infoData` | table  | nil     | Array of `{ label, value }` pairs shown in the info side panel when focused |
 
 ---
 
@@ -987,7 +1019,30 @@ zed.CloseDialog()
 
 ### Configuration
 
-Toggle global settings at runtime.
+#### Configuration File
+
+ZedLib has a `config.lua` file at the root of the resource for static settings. Edit this file and restart the resource to apply changes.
+
+```lua
+-- zedlib/config.lua
+ZedConfig = {
+    accentColor = '#e74c3c',  -- Global accent color for all components (hex)
+    showTitle = true,         -- Show the menu title in the header
+    showItemCount = true,     -- Show the item counter (e.g. "3 / 12") in the header
+    enableContextMenu = true, -- Enable the context menu system (ALT targeting)
+}
+```
+
+| Option             | Type    | Default     | Description |
+|--------------------|---------|-------------|-------------|
+| `accentColor`      | string  | `'#e74c3c'` | Global accent color applied to menus, notifications, dialogs, and context menus. Per-component colors (e.g. menu `color` option, notification `color` field) override this. |
+| `showTitle`        | boolean | true        | Show menu title in the header (both banner and non-banner menus) |
+| `showItemCount`    | boolean | true        | Show the item counter (e.g. `3 / 12`) in the header |
+| `enableContextMenu`| boolean | true        | Enable the ALT-hold context menu targeting system |
+
+#### Runtime Configuration
+
+Toggle settings dynamically at runtime from any script:
 
 ```lua
 zed.SetConfig({
@@ -1257,6 +1312,7 @@ Output goes to `web/dist/`, referenced by `fxmanifest.lua`.
 ```
 zedlib/
 ├── fxmanifest.lua            # FiveM resource manifest
+├── config.lua                # Static configuration (title, item count, context menu)
 ├── import.lua                # zed.* API wrapper with cross-resource callback support
 ├── lua/
 │   ├── client.lua            # NUI bridge, keyboard controls, callback routing

@@ -1,4 +1,5 @@
 import { MenuIcon } from '../menu/MenuIcon';
+import { useConfigStore } from '@/stores';
 import type { ContextOption } from '@/types/context';
 
 interface ContextMenuItemProps {
@@ -8,9 +9,8 @@ interface ContextMenuItemProps {
   onSelect: () => void;
 }
 
-const ACCENT_COLOR = '#ef4444';
-
 export function ContextMenuItem({ option, isActive, onHover, onSelect }: ContextMenuItemProps) {
+  const accentColor = useConfigStore((s) => s.config.accentColor);
   const hasChildren = option.children && option.children.length > 0;
 
   return (
@@ -20,7 +20,7 @@ export function ContextMenuItem({ option, isActive, onHover, onSelect }: Context
         ${isActive ? 'active bg-white/[0.08]' : ''}
         ${option.disabled ? 'opacity-40 cursor-not-allowed' : ''}
       `}
-      style={isActive ? { borderLeft: `2px solid ${ACCENT_COLOR}` } : { borderLeft: '2px solid transparent' }}
+      style={isActive ? { borderLeft: `2px solid ${accentColor}` } : { borderLeft: '2px solid transparent' }}
       onClick={() => {
         if (option.disabled || hasChildren) return;
         onSelect();
@@ -33,7 +33,7 @@ export function ContextMenuItem({ option, isActive, onHover, onSelect }: Context
         <MenuIcon
           icon={option.icon}
           className="text-sm w-4 text-center flex-shrink-0"
-          style={{ color: isActive ? ACCENT_COLOR : 'rgba(255,255,255,0.5)' }}
+          style={{ color: isActive ? accentColor : 'rgba(255,255,255,0.5)' }}
         />
       )}
       <span className="text-[13px] font-medium text-white truncate flex-1">

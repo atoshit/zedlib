@@ -190,8 +190,14 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
   },
 
   navigateToSubmenu: (menuId) => {
-    const { navigation, menus } = get();
+    const { navigation, menus, searchState } = get();
     if (!menus[menuId]) return;
+    const currentMenuId = navigation.stack[navigation.stack.length - 1];
+    if (currentMenuId && searchState[currentMenuId]?.active) {
+      nuiCallback('zedlib:searchFocus', { active: false });
+    }
+    const newSearch = { ...searchState };
+    if (currentMenuId) delete newSearch[currentMenuId];
     set({
       navigation: {
         ...navigation,
@@ -199,6 +205,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         activeIndex: { ...navigation.activeIndex, [menuId]: 0 },
         scrollOffset: { ...navigation.scrollOffset, [menuId]: 0 },
       },
+      searchState: newSearch,
     });
   },
 
@@ -279,7 +286,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
   },
 
   selectCurrent: () => {
-    const { navigation, getVisibleItems } = get();
+    const { navigation, getVisibleItems, searchState } = get();
     const currentMenuId = navigation.stack[navigation.stack.length - 1];
     if (!currentMenuId) return;
 
@@ -288,6 +295,13 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     const currentIndex = navigation.activeIndex[currentMenuId] ?? 0;
     const item = selectableItems[currentIndex];
     if (!item || ('disabled' in item && item.disabled)) return;
+
+    if (item.type !== 'search' && searchState[currentMenuId]?.active) {
+      nuiCallback('zedlib:searchFocus', { active: false });
+      const newSearch = { ...get().searchState };
+      delete newSearch[currentMenuId];
+      set({ searchState: newSearch });
+    }
 
     switch (item.type) {
       case 'search':
