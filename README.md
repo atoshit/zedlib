@@ -12,6 +12,7 @@ A production-ready, modular UI library for FiveM featuring a React-based NUI fro
   - [Menus](#menus)
   - [Context Menu](#context-menu)
   - [Progress Bar](#progress-bar)
+  - [Interact](#interact)
   - [Notifications](#notifications)
   - [Dialogs](#dialogs)
   - [Configuration](#configuration)
@@ -68,6 +69,18 @@ A production-ready, modular UI library for FiveM featuring a React-based NUI fro
 - **Target a specific entity**: `entity` field to bind options to a single entity handle
 - **Target by model/prop**: `model` field to bind options to all props of a given model name or hash
 - **Auto-cleanup**: options are automatically removed when the resource that registered them stops
+
+### Interact
+- **Interaction prompt** at world coordinates (above peds, doors, etc.)
+- **Optional key** (e.g. `E`) displayed in a small box on the left; omit `key` to show only the label
+- **Key press animation** on the key box when the player presses the key
+- **Dynamic coords**: pass a function for moving entities (e.g. ped head)
+- **Distance-based** visibility and `onSelect` callback
+
+### InteractProgress
+- Same as Interact but **hold** the key for a `duration` (ms)
+- **Progress bar** below the label while holding; `onSelect` only when full duration complete
+- **onCancel** when the player releases early or leaves range
 
 ### Progress Bar
 - **Blocking function**: returns `true` (completed) or `false` (cancelled)
@@ -894,6 +907,113 @@ end
 
 ---
 
+### Interact
+
+Display a small interaction prompt at world coordinates (e.g. above a ped or in front of a door). When the player is in range and presses the key, a short animation plays on the key box and your callback runs.
+
+#### Basic usage
+
+```lua
+-- Fixed position (e.g. door)
+zed.Interact({
+    coords = vector3(123.0, 456.0, 78.0),
+    label = "Ouvrir la porte",
+    key = "E",
+    distance = 1.5,
+    onSelect = function()
+        print("Door opened!")
+    end,
+})
+
+-- On a ped (coords update every frame; use target ped entity)
+zed.Interact({
+    coords = function() return GetEntityCoords(targetPed) + vector3(0, 0, 1.0) end,
+    label = "Dévaliser l'individu",
+    key = "E",
+    onSelect = function()
+        -- rob the ped
+    end,
+})
+```
+
+#### Without key
+
+If you omit `key`, only the label is shown (no key box on the left):
+
+```lua
+zed.Interact({
+    coords = vector3(0, 0, 0),
+    label = "Zone d'interaction",
+    onSelect = function() end,
+})
+```
+
+#### Options
+
+| Field      | Type           | Default | Description |
+|------------|----------------|---------|-------------|
+| `coords`   | vector3 or fun | —       | World position, or function returning vector3 (e.g. for moving entities) |
+| `label`    | string         | —       | Text displayed next to the key |
+| `key`      | string         | nil     | Key to show (e.g. `"E"`). If omitted, no key box is shown |
+| `distance` | number         | 2.0     | Max distance to show the prompt |
+| `onSelect` | function       | nil     | Callback when the player presses the key while in range |
+
+Supported key labels: `E`, `G`, `F`, `R`, `Q`, `Z`, `X`, `C`, `T`, `Y` (mapped to default controls).
+
+#### Clear
+
+```lua
+zed.ClearInteract()
+```
+
+#### InteractProgress (hold to complete)
+
+Same as Interact but the player must **hold** the key for a given duration. A progress bar appears below the label while holding; `onSelect` runs only when the duration is complete, and `onCancel` runs if they release early or leave range.
+
+```lua
+zed.InteractProgress({
+    coords = vector3(x, y, z),
+    label = "Dévaliser l'individu",
+    key = "E",
+    distance = 2.0,
+    duration = 2000,  -- ms to hold
+    onSelect = function()
+        print("Completed!")
+    end,
+    onCancel = function()
+        print("Cancelled or released early.")
+    end,
+})
+
+zed.ClearInteractProgress()  -- clear when done
+```
+
+To keep the prompt after the action (e.g. repeat "Dévaliser" on the same ped), set `removeOnComplete = false`:
+
+```lua
+zed.InteractProgress({
+    coords = function() return GetEntityCoords(targetPed) + vector3(0, 0, 1) end,
+    label = "Dévaliser l'individu",
+    key = "E",
+    duration = 2000,
+    removeOnComplete = false,  -- prompt stays, player can do it again
+    onSelect = function() end,
+})
+```
+
+| Field             | Type     | Default | Description |
+|-------------------|----------|---------|-------------|
+| `coords`          | vector3 or fun | —   | World position (or function for moving entities) |
+| `label`           | string   | —       | Text displayed above the progress bar |
+| `key`             | string   | nil     | Key to show (e.g. `"E"`). Omit for no key box |
+| `distance`        | number   | 2.0     | Max distance to show the prompt |
+| `duration`        | number   | —       | Time in ms the player must hold the key |
+| `removeOnComplete`| boolean  | true    | If true, the prompt is removed after the action. If false, it stays so the player can repeat. |
+| `onSelect`        | function | nil     | Called when the player holds for the full duration |
+| `onCancel`        | function | nil     | Called when the player releases before completion or leaves range |
+
+---
+
 ### Notifications
 
 #### Generic Notification
@@ -1241,6 +1361,15 @@ Options support `type` (entity type filter), `entity` (specific entity handle), 
 | `CancelProgressBar` | — | — | Cancel the active progress bar |
 | `IsProgressActive` | — | `boolean` | Check if a progress bar is running |
 
+### Interact Functions
+
+| Function | Parameters | Returns | Description |
+|----------|-----------|---------|-------------|
+| `Interact` | `opts` | — | Set the current interact prompt (coords, label, key?, distance?, onSelect?) |
+| `ClearInteract` | — | — | Clear the current interact prompt |
+| `InteractProgress` | `opts` | — | Set hold-to-complete prompt (duration, onSelect?, onCancel?) |
+| `ClearInteractProgress` | — | — | Clear the current interact progress prompt |
+
 ### Configuration Functions
 
 | Function | Parameters | Returns | Description |
@@ -1435,6 +1564,7 @@ zedlib/
 │       ├── dialog.lua        # Dialog, Confirm, CloseDialog
 │       ├── context.lua       # AddContextOption, AddContextSubMenu, entity/model targeting
 │       ├── progressbar.lua   # ProgressBar, CancelProgressBar, IsProgressActive
+│       ├── interact.lua      # SetInteract, ClearInteract, SetInteractProgress, ClearInteractProgress
 │       ├── config.lua        # SetConfig
 │       └── exports.lua       # FiveM exports for all functions
 ├── lua/events/

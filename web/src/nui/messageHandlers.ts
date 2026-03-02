@@ -4,6 +4,8 @@ import { useDialogStore } from '@/stores/dialogStore';
 import { useConfigStore } from '@/stores/configStore';
 import { useContextStore } from '@/stores/contextStore';
 import { useProgressBarStore } from '@/stores/progressBarStore';
+import { useInteractStore } from '@/stores/interactStore';
+import { useInteractProgressStore } from '@/stores/interactProgressStore';
 import { registerNuiHandler } from './handlers';
 import { nuiCallback } from './bridge';
 import type { MenuDefinition, MenuItem, NotificationData, DialogData } from '@/types';
@@ -181,5 +183,52 @@ export function registerAllHandlers(): void {
 
   registerNuiHandler('zedlib:stopProgress', () => {
     useProgressBarStore.getState().hide();
+  });
+
+  registerNuiHandler('zedlib:interactShow', (data) => {
+    const { x, y, label, key } = data as { x: number; y: number; label: string; key?: string };
+    useInteractStore.getState().show({ x, y, label, key });
+  });
+
+  registerNuiHandler('zedlib:interactHide', () => {
+    useInteractStore.getState().hide();
+  });
+
+  registerNuiHandler('zedlib:interactUpdatePos', (data) => {
+    const { x, y } = data as { x: number; y: number };
+    useInteractStore.getState().updatePosition(x, y);
+  });
+
+  registerNuiHandler('zedlib:interactKeyPressed', () => {
+    useInteractStore.getState().setKeyPressed(true);
+  });
+
+  registerNuiHandler('zedlib:interactProgressShow', (data) => {
+    const { x, y, label, key, duration } = data as {
+      x: number;
+      y: number;
+      label: string;
+      key?: string;
+      duration: number;
+    };
+    useInteractProgressStore.getState().show({ x, y, label, key, duration });
+  });
+
+  registerNuiHandler('zedlib:interactProgressHide', () => {
+    useInteractProgressStore.getState().hide();
+  });
+
+  registerNuiHandler('zedlib:interactProgressUpdatePos', (data) => {
+    const { x, y } = data as { x: number; y: number };
+    useInteractProgressStore.getState().updatePosition(x, y);
+  });
+
+  registerNuiHandler('zedlib:interactProgressUpdateProgress', (data) => {
+    const { progress } = data as { progress: number };
+    useInteractProgressStore.getState().setProgress(progress);
+  });
+
+  registerNuiHandler('zedlib:interactProgressKeyPressed', () => {
+    useInteractProgressStore.getState().setKeyPressed(true);
   });
 }

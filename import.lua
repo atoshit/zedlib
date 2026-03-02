@@ -23,6 +23,10 @@
 ---@field ProgressBar fun(opts: ZedProgressBarOptions): boolean
 ---@field CancelProgressBar fun()
 ---@field IsProgressActive fun(): boolean
+---@field SetInteract fun(opts: ZedInteractOptions)
+---@field ClearInteract fun()
+---@field SetInteractProgress fun(opts: ZedInteractProgressOptions)
+---@field ClearInteractProgress fun()
 ---@field AddContextOption fun(opts: ZedContextOptionData): string
 ---@field AddContextSubMenu fun(opts: ZedContextSubMenuData): string
 ---@field RemoveContextOption fun(id: string)
@@ -177,6 +181,23 @@
 ---@field car? boolean Disable vehicle controls
 ---@field combat? boolean Disable combat/firing
 ---@field mouse? boolean Disable camera/mouse
+
+---@class ZedInteractOptions
+---@field coords vector3|fun():vector3 World position (or function returning it, e.g. for peds)
+---@field label string Text displayed next to the key
+---@field key? string Key to show (e.g. 'E'). If omitted, no key box is shown
+---@field distance? number Max distance to show the prompt (default: 2.0)
+---@field onSelect? function Callback when the player presses the key while in range
+
+---@class ZedInteractProgressOptions
+---@field coords vector3|fun():vector3 World position (or function returning it)
+---@field label string Text displayed in the prompt
+---@field key? string Key to show (e.g. 'E'). If omitted, no key box is shown
+---@field distance? number Max distance to show the prompt (default: 2.0)
+---@field duration number Time in ms the player must hold the key
+---@field removeOnComplete? boolean If true (default), the prompt is removed after the action. If false, it stays so the player can repeat the action.
+---@field onSelect? function Callback when the player holds for the full duration
+---@field onCancel? function Callback when the player releases the key before completion or leaves range
 
 ---@class ZedDialogButton
 ---@field label string Display label for the button
@@ -487,4 +508,26 @@ end
 ---@return boolean
 function zed.IsProgressActive()
     return call('IsProgressActive')
+end
+
+--- Set the current interact prompt (shown at coords when player is in range). Use ClearInteract to remove.
+---@param opts ZedInteractOptions
+function zed.Interact(opts)
+    call('SetInteract', opts)
+end
+
+--- Clear the current interact prompt.
+function zed.ClearInteract()
+    call('ClearInteract')
+end
+
+--- Set the current interact progress prompt (hold key for duration). onSelect when complete, onCancel when released early.
+---@param opts ZedInteractProgressOptions
+function zed.InteractProgress(opts)
+    call('SetInteractProgress', opts)
+end
+
+--- Clear the current interact progress prompt.
+function zed.ClearInteractProgress()
+    call('ClearInteractProgress')
 end

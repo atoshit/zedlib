@@ -34,6 +34,12 @@ exports('ProgressBar', UI.ProgressBar)
 exports('CancelProgressBar', UI.CancelProgressBar)
 exports('IsProgressActive', UI.IsProgressActive)
 
+-- Interact
+exports('SetInteract', UI.SetInteract)
+exports('ClearInteract', UI.ClearInteract)
+exports('SetInteractProgress', UI.SetInteractProgress)
+exports('ClearInteractProgress', UI.ClearInteractProgress)
+
 -- Context Menu
 exports('AddContextOption', UI.AddContextOption)
 exports('AddContextSubMenu', UI.AddContextSubMenu)

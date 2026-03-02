@@ -4,6 +4,7 @@ import { NotificationContainer } from '@/components/notification';
 import { Dialog } from '@/components/dialog';
 import { ContextMenu } from '@/components/context';
 import { ProgressBar } from '@/components/progressbar';
+import { InteractPrompt, InteractProgressPrompt } from '@/components/interact';
 import { initNuiListeners, destroyNuiListeners, isFiveM } from '@/nui';
 import { registerAllHandlers } from '@/nui/messageHandlers';
 import { Playground } from '@/devtools/Playground';
@@ -22,6 +23,8 @@ export function App() {
       <Dialog />
       <ContextMenu />
       <ProgressBar />
+      <InteractPrompt />
+      <InteractProgressPrompt />
       {!isFiveM && <Playground />}
     </div>
   );

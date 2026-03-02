@@ -23,6 +23,7 @@ client_scripts {
     'lua/api/dialog.lua',
     'lua/api/context.lua',
     'lua/api/progressbar.lua',
+    'lua/api/interact.lua',
     'lua/api/config.lua',
     'lua/api/exports.lua',
     'lua/events/notification.lua',
