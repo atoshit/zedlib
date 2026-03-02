@@ -19,6 +19,7 @@
 ---@field Confirm fun(title: string, message: string, onConfirm?: fun(), onCancel?: fun(), color?: string)
 ---@field CloseDialog fun()
 ---@field SetConfig fun(opts: ZedConfigOptions)
+---@field CopyToClipboard fun(text: string)
 ---@field AddContextOption fun(opts: ZedContextOptionData): string
 ---@field AddContextSubMenu fun(opts: ZedContextSubMenuData): string
 ---@field RemoveContextOption fun(id: string)
@@ -428,4 +429,10 @@ end
 --- Close the currently open context menu.
 function zed.CloseContext()
     call('CloseContext')
+end
+
+--- Copy text to the clipboard.
+---@param text string The text to copy
+function zed.CopyToClipboard(text)
+    call('CopyToClipboard', text)
 end

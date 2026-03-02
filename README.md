@@ -1080,6 +1080,16 @@ Options support `type` (entity type filter), `entity` (specific entity handle), 
 |----------|-----------|---------|-------------|
 | `SetConfig` | `opts` | — | Update runtime configuration |
 
+### Utility Functions
+
+| Function | Parameters | Returns | Description |
+|----------|-----------|---------|-------------|
+| `CopyToClipboard` | `text` | — | Copy text to the player's clipboard |
+
+```lua
+zed.CopyToClipboard("Hello world!")
+```
+
 ---
 
 ## Complete Example

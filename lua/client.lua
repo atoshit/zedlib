@@ -173,6 +173,25 @@ CreateThread(function()
                     EnableControlAction(0, 240, true)
                     EnableControlAction(0, 24, true)
                     EnableControlAction(0, 25, true)
+                    EnableControlAction(0, 30, true)  -- Move LR
+                    EnableControlAction(0, 31, true)  -- Move UD
+                    EnableControlAction(0, 32, true)  -- Move Up
+                    EnableControlAction(0, 33, true)  -- Move Down
+                    EnableControlAction(0, 34, true)  -- Move Left
+                    EnableControlAction(0, 35, true)  -- Move Right
+                    EnableControlAction(0, 21, true)  -- Sprint
+                    EnableControlAction(0, 22, true)  -- Jump
+                    EnableControlAction(0, 23, true)  -- Enter vehicle
+                    EnableControlAction(0, 36, true)  -- Sneak
+                    EnableControlAction(0, 44, true)  -- Cover
+                    EnableControlAction(0, 71, true)  -- Vehicle accelerate
+                    EnableControlAction(0, 72, true)  -- Vehicle brake
+                    EnableControlAction(0, 59, true)  -- Vehicle steer LR
+                    EnableControlAction(0, 60, true)  -- Vehicle steer UD
+                    EnableControlAction(0, 76, true)  -- Vehicle handbrake
+                    EnableControlAction(0, 75, true)  -- Vehicle exit
+                    EnableControlAction(0, 63, true)  -- Vehicle steer left
+                    EnableControlAction(0, 64, true)  -- Vehicle steer right
                     DisablePlayerFiring(PlayerPedId(), true)
 
                     if not ZedInternal.contextIsOpen() then

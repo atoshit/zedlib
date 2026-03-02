@@ -144,6 +144,22 @@ export function registerAllHandlers(): void {
     useConfigStore.getState().setConfig(data as Record<string, unknown>);
   });
 
+  registerNuiHandler('zedlib:copyToClipboard', (data) => {
+    const { text } = data as { text: string };
+    if (text) {
+      navigator.clipboard.writeText(text).catch(() => {
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      });
+    }
+  });
+
   registerNuiHandler('zedlib:openContext', (data) => {
     const ctx = data as ContextMenuData;
     useContextStore.getState().openMenu(ctx);

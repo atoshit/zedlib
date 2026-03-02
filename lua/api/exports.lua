@@ -26,6 +26,9 @@ exports('CloseDialog', UI.CloseDialog)
 -- Config
 exports('SetConfig', UI.SetConfig)
 
+-- Utility
+exports('CopyToClipboard', UI.CopyToClipboard)
+
 -- Context Menu
 exports('AddContextOption', UI.AddContextOption)
 exports('AddContextSubMenu', UI.AddContextSubMenu)
