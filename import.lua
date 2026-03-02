@@ -20,6 +20,9 @@
 ---@field CloseDialog fun()
 ---@field SetConfig fun(opts: ZedConfigOptions)
 ---@field CopyToClipboard fun(text: string)
+---@field ProgressBar fun(opts: ZedProgressBarOptions): boolean
+---@field CancelProgressBar fun()
+---@field IsProgressActive fun(): boolean
 ---@field AddContextOption fun(opts: ZedContextOptionData): string
 ---@field AddContextSubMenu fun(opts: ZedContextSubMenuData): string
 ---@field RemoveContextOption fun(id: string)
@@ -149,6 +152,31 @@
 ---@field value? number Initial value (default: 0)
 ---@field infoData? ZedInfoData[] Info panel data shown on the right when this item is focused
 ---@field onChange? fun(value: number) Callback fired when the slider value changes
+
+---@class ZedProgressBarOptions
+---@field duration? number Duration in milliseconds (default: 5000)
+---@field label? string Text displayed above the progress bar
+---@field canCancel? boolean Whether the progress can be cancelled with ESC/Backspace (default: true)
+---@field anim? ZedProgressAnim Animation to play during the progress
+---@field prop? ZedProgressProp Prop to attach to the player during the progress
+---@field disable? ZedProgressDisable Controls to disable during the progress
+
+---@class ZedProgressAnim
+---@field dict string Animation dictionary name
+---@field clip string Animation clip name
+---@field flag? number Animation flag (default: 49)
+
+---@class ZedProgressProp
+---@field model string|number Prop model name or hash
+---@field pos? vector3 Offset position relative to the bone (default: vec3(0,0,0))
+---@field rot? vector3 Rotation relative to the bone (default: vec3(0,0,0))
+---@field bone? number Bone index to attach to (default: 60309 = right hand)
+
+---@class ZedProgressDisable
+---@field move? boolean Disable player movement
+---@field car? boolean Disable vehicle controls
+---@field combat? boolean Disable combat/firing
+---@field mouse? boolean Disable camera/mouse
 
 ---@class ZedDialogButton
 ---@field label string Display label for the button
@@ -441,4 +469,22 @@ end
 ---@param text string The text to copy
 function zed.CopyToClipboard(text)
     call('CopyToClipboard', text)
+end
+
+--- Show a progress bar. Blocks until complete or cancelled.
+---@param opts ZedProgressBarOptions
+---@return boolean completed true if finished, false if cancelled
+function zed.ProgressBar(opts)
+    return call('ProgressBar', opts)
+end
+
+--- Cancel the active progress bar.
+function zed.CancelProgressBar()
+    call('CancelProgressBar')
+end
+
+--- Check if a progress bar is currently active.
+---@return boolean
+function zed.IsProgressActive()
+    return call('IsProgressActive')
 end

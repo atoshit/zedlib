@@ -3,6 +3,7 @@ import { useNotificationStore } from '@/stores/notificationStore';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useConfigStore } from '@/stores/configStore';
 import { useContextStore } from '@/stores/contextStore';
+import { useProgressBarStore } from '@/stores/progressBarStore';
 import { registerNuiHandler } from './handlers';
 import { nuiCallback } from './bridge';
 import type { MenuDefinition, MenuItem, NotificationData, DialogData } from '@/types';
@@ -171,5 +172,14 @@ export function registerAllHandlers(): void {
 
   registerNuiHandler('zedlib:closeContext', () => {
     useContextStore.getState().closeMenu(true);
+  });
+
+  registerNuiHandler('zedlib:startProgress', (data) => {
+    const { label, duration, canCancel } = data as { label: string; duration: number; canCancel: boolean };
+    useProgressBarStore.getState().show({ label, duration, canCancel });
+  });
+
+  registerNuiHandler('zedlib:stopProgress', () => {
+    useProgressBarStore.getState().hide();
   });
 }

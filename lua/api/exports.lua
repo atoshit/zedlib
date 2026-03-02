@@ -29,6 +29,11 @@ exports('SetConfig', UI.SetConfig)
 -- Utility
 exports('CopyToClipboard', UI.CopyToClipboard)
 
+-- Progress Bar
+exports('ProgressBar', UI.ProgressBar)
+exports('CancelProgressBar', UI.CancelProgressBar)
+exports('IsProgressActive', UI.IsProgressActive)
+
 -- Context Menu
 exports('AddContextOption', UI.AddContextOption)
 exports('AddContextSubMenu', UI.AddContextSubMenu)

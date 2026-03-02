@@ -11,6 +11,7 @@ A production-ready, modular UI library for FiveM featuring a React-based NUI fro
 - [Usage](#usage)
   - [Menus](#menus)
   - [Context Menu](#context-menu)
+  - [Progress Bar](#progress-bar)
   - [Notifications](#notifications)
   - [Dialogs](#dialogs)
   - [Configuration](#configuration)
@@ -68,13 +69,21 @@ A production-ready, modular UI library for FiveM featuring a React-based NUI fro
 - **Target by model/prop**: `model` field to bind options to all props of a given model name or hash
 - **Auto-cleanup**: options are automatically removed when the resource that registered them stops
 
+### Progress Bar
+- **Blocking function**: returns `true` (completed) or `false` (cancelled)
+- **Animation support**: play animations during the progress (dict + clip)
+- **Prop attachment**: attach props to the player (model, position, rotation, bone)
+- **Cancel support**: optional ESC/Backspace cancellation
+- **Control disabling**: selectively disable movement, vehicle, combat, or mouse controls
+- Uses the global accent color with glow effect
+
 ### General
 - UI sound effects (hover, select, toggle) with global toggle
 - Smooth animations and hover shine effects
 - Plugin system for extensibility
 - Hot reload dev playground (no FiveM required)
 - Optimized production build
-- **Lua API split by component**: `lua/api/` (menu, notification, dialog, config, exports)
+- **Lua API split by component**: `lua/api/` (menu, notification, dialog, progressbar, context, config, exports)
 
 ---
 
@@ -790,6 +799,101 @@ When a resource that registered context options is **stopped or restarted**, all
 
 ---
 
+### Progress Bar
+
+The progress bar is a **blocking function** that displays a progress indicator at the bottom of the screen. It returns `true` if completed or `false` if cancelled. Supports animations, prop attachments, and selective control disabling.
+
+#### Basic usage
+
+```lua
+if zed.ProgressBar({
+    duration = 3000,
+    label = 'Repairing vehicle...',
+}) then
+    print('Repair complete!')
+else
+    print('Repair cancelled')
+end
+```
+
+#### With animation and prop
+
+```lua
+if zed.ProgressBar({
+    duration = 2000,
+    label = 'Drinking water',
+    canCancel = true,
+    disable = {
+        car = true,
+        combat = true,
+    },
+    anim = {
+        dict = 'mp_player_intdrink',
+        clip = 'loop_bottle',
+    },
+    prop = {
+        model = 'prop_ld_flow_bottle',
+        pos = vec3(0.03, 0.03, 0.02),
+        rot = vec3(0.0, 0.0, -1.5),
+    },
+}) then
+    print('Finished drinking')
+else
+    print('Stopped drinking')
+end
+```
+
+#### Options table
+
+| Field       | Type    | Default | Description |
+|-------------|---------|---------|-------------|
+| `duration`  | number  | 5000    | Duration in milliseconds |
+| `label`     | string  | `''`    | Text displayed above the progress bar |
+| `canCancel` | boolean | true    | Whether the player can cancel with ESC or Backspace |
+| `anim`      | table   | nil     | Animation to play: `{ dict, clip, flag? }` |
+| `prop`      | table   | nil     | Prop to attach: `{ model, pos?, rot?, bone? }` |
+| `disable`   | table   | nil     | Controls to disable: `{ move?, car?, combat?, mouse? }` |
+
+**`anim` fields:**
+
+| Field  | Type   | Default | Description |
+|--------|--------|---------|-------------|
+| `dict` | string | —       | Animation dictionary |
+| `clip` | string | —       | Animation clip name |
+| `flag` | number | 49      | Animation flag |
+
+**`prop` fields:**
+
+| Field   | Type           | Default   | Description |
+|---------|----------------|-----------|-------------|
+| `model` | string/number  | —         | Prop model name or hash |
+| `pos`   | vector3        | (0,0,0)   | Offset position relative to the bone |
+| `rot`   | vector3        | (0,0,0)   | Rotation relative to the bone |
+| `bone`  | number         | 60309     | Bone index (default: right hand) |
+
+**`disable` fields:**
+
+| Field    | Type    | Default | Description |
+|----------|---------|---------|-------------|
+| `move`   | boolean | false   | Disable WASD movement |
+| `car`    | boolean | false   | Disable vehicle controls |
+| `combat` | boolean | false   | Disable combat and firing |
+| `mouse`  | boolean | false   | Disable camera/mouse |
+
+#### Management functions
+
+```lua
+-- Cancel the active progress bar from code
+zed.CancelProgressBar()
+
+-- Check if a progress bar is active
+if zed.IsProgressActive() then
+    print('Progress running')
+end
+```
+
+---
+
 ### Notifications
 
 #### Generic Notification
@@ -1129,6 +1233,14 @@ Hold arrow keys for auto-repeat (300ms initial delay, 80ms repeat interval). The
 
 Options support `type` (entity type filter), `entity` (specific entity handle), or `model` (model name/hash). Auto-cleanup on resource stop.
 
+### Progress Bar Functions
+
+| Function | Parameters | Returns | Description |
+|----------|-----------|---------|-------------|
+| `ProgressBar` | `opts` | `boolean` | Show a blocking progress bar. Returns `true` if completed, `false` if cancelled |
+| `CancelProgressBar` | — | — | Cancel the active progress bar |
+| `IsProgressActive` | — | `boolean` | Check if a progress bar is running |
+
 ### Configuration Functions
 
 | Function | Parameters | Returns | Description |
@@ -1322,6 +1434,7 @@ zedlib/
 │       ├── notification.lua  # Notify, ClearNotifications
 │       ├── dialog.lua        # Dialog, Confirm, CloseDialog
 │       ├── context.lua       # AddContextOption, AddContextSubMenu, entity/model targeting
+│       ├── progressbar.lua   # ProgressBar, CancelProgressBar, IsProgressActive
 │       ├── config.lua        # SetConfig
 │       └── exports.lua       # FiveM exports for all functions
 ├── lua/events/
