@@ -3,7 +3,7 @@ game 'gta5'
 
 name 'zedlib'
 description 'Zed Library - Modern FiveM UI Library'
-author 'ZedLib Team'
+author 'Atoshi'
 version '1.0.0'
 
 ui_page 'web/dist/index.html'
@@ -20,6 +20,7 @@ client_scripts {
     'lua/api/menu.lua',
     'lua/api/notification.lua',
     'lua/api/dialog.lua',
+    'lua/api/context.lua',
     'lua/api/config.lua',
     'lua/api/exports.lua',
     'lua/events/notification.lua',

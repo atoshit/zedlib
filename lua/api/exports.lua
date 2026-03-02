@@ -25,3 +25,13 @@ exports('CloseDialog', UI.CloseDialog)
 
 -- Config
 exports('SetConfig', UI.SetConfig)
+
+-- Context Menu
+exports('AddContextOption', UI.AddContextOption)
+exports('AddContextSubMenu', UI.AddContextSubMenu)
+exports('RemoveContextOption', UI.RemoveContextOption)
+exports('ClearContext', UI.ClearContext)
+exports('SetContextEnabled', UI.SetContextEnabled)
+exports('IsContextEnabled', UI.IsContextEnabled)
+exports('IsContextOpen', UI.IsContextOpen)
+exports('CloseContext', UI.CloseContext)

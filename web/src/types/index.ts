@@ -1,6 +1,7 @@
 export * from './menu';
 export * from './notification';
 export * from './dialog';
+export * from './context';
 
 export interface NuiMessage<T = unknown> {
   action: string;

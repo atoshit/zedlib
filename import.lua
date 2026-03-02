@@ -19,6 +19,33 @@
 ---@field Confirm fun(title: string, message: string, onConfirm?: fun(), onCancel?: fun(), color?: string)
 ---@field CloseDialog fun()
 ---@field SetConfig fun(opts: ZedConfigOptions)
+---@field AddContextOption fun(opts: ZedContextOptionData): string
+---@field AddContextSubMenu fun(opts: ZedContextSubMenuData): string
+---@field RemoveContextOption fun(id: string)
+---@field ClearContext fun()
+---@field SetContextEnabled fun(enabled: boolean)
+---@field IsContextEnabled fun(): boolean
+---@field IsContextOpen fun(): boolean
+---@field CloseContext fun()
+
+---@class ZedContextOptionData
+---@field type? 'vehicle'|'ped'|'player'|'object'|'myself'|'mycar'|'all' Entity type filter (default: 'all')
+---@field entity? number Specific entity handle to target (overrides type)
+---@field model? string|number Model name or hash to target all props of this model (overrides type)
+---@field label string Display label for the option
+---@field icon? string FontAwesome icon name (e.g. 'wrench') or image URL
+---@field id? string Custom unique identifier
+---@field disabled? boolean Whether the option is disabled (default: false)
+---@field submenu? string Submenu id to nest this option inside
+---@field onSelect? fun(entity: number, entityType: string, coords: vector3) Callback when option is selected
+
+---@class ZedContextSubMenuData
+---@field type? 'vehicle'|'ped'|'player'|'object'|'myself'|'mycar'|'all' Entity type filter (default: 'all')
+---@field entity? number Specific entity handle (overrides type)
+---@field model? string|number Model name or hash (overrides type)
+---@field id? string Custom unique identifier for the submenu
+---@field label string Display label for the submenu
+---@field icon? string FontAwesome icon name or image URL
 
 ---@class ZedMenuOptions
 ---@field color? string Accent color for the menu (hex, e.g. '#e74c3c'). Inherited by submenus.
@@ -350,4 +377,55 @@ end
 ---@param opts ZedConfigOptions Configuration options to update
 function zed.SetConfig(opts)
     call('SetConfig', opts)
+end
+
+--- Register a context menu option for entities.
+---@param opts ZedContextOptionData Option configuration
+---@return string optionId The generated or custom option identifier
+function zed.AddContextOption(opts)
+    local o = {}
+    for k, v in pairs(opts) do o[k] = v end
+    o.onSelect = storeCb(opts.onSelect)
+    return call('AddContextOption', o)
+end
+
+--- Register a context menu submenu for entities.
+---@param opts ZedContextSubMenuData Submenu configuration
+---@return string submenuId The generated or custom submenu identifier
+function zed.AddContextSubMenu(opts)
+    return call('AddContextSubMenu', opts)
+end
+
+--- Remove a context menu option by its id.
+---@param id string Option identifier to remove
+function zed.RemoveContextOption(id)
+    call('RemoveContextOption', id)
+end
+
+--- Remove all context menu options and submenus.
+function zed.ClearContext()
+    call('ClearContext')
+end
+
+--- Enable or disable the context menu targeting system.
+---@param enabled boolean Whether targeting is enabled
+function zed.SetContextEnabled(enabled)
+    call('SetContextEnabled', enabled)
+end
+
+--- Check whether the context menu targeting system is enabled.
+---@return boolean
+function zed.IsContextEnabled()
+    return call('IsContextEnabled')
+end
+
+--- Check whether a context menu is currently open.
+---@return boolean
+function zed.IsContextOpen()
+    return call('IsContextOpen')
+end
+
+--- Close the currently open context menu.
+function zed.CloseContext()
+    call('CloseContext')
 end

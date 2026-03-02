@@ -2,9 +2,11 @@ import { useMenuStore } from '@/stores/menuStore';
 import { useNotificationStore } from '@/stores/notificationStore';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useConfigStore } from '@/stores/configStore';
+import { useContextStore } from '@/stores/contextStore';
 import { registerNuiHandler } from './handlers';
 import { nuiCallback } from './bridge';
 import type { MenuDefinition, MenuItem, NotificationData, DialogData } from '@/types';
+import type { ContextMenuData } from '@/types/context';
 
 export function registerAllHandlers(): void {
   registerNuiHandler('zedlib:registerMenu', (data) => {
@@ -140,5 +142,14 @@ export function registerAllHandlers(): void {
 
   registerNuiHandler('zedlib:setConfig', (data) => {
     useConfigStore.getState().setConfig(data as Record<string, unknown>);
+  });
+
+  registerNuiHandler('zedlib:openContext', (data) => {
+    const ctx = data as ContextMenuData;
+    useContextStore.getState().openMenu(ctx);
+  });
+
+  registerNuiHandler('zedlib:closeContext', () => {
+    useContextStore.getState().closeMenu(true);
   });
 }

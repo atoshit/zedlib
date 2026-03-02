@@ -12,6 +12,7 @@ A production-ready, modular UI library for FiveM featuring a React-based NUI fro
 - [Usage Methods](#usage-methods)
 - [Usage](#usage)
   - [Menus](#menus)
+  - [Context Menu](#context-menu)
   - [Notifications](#notifications)
   - [Dialogs](#dialogs)
   - [Configuration](#configuration)
@@ -54,6 +55,20 @@ A production-ready, modular UI library for FiveM featuring a React-based NUI fro
 - Field validation (required, maxLength, min/max)
 - Closable toggle
 - Default accent color: red when not specified
+
+### Context Menu
+- **Entity targeting** with ALT key: hold ALT to show cursor, left-click an entity to open context menu
+- **Entity highlighting**: targeted entities become semi-transparent for visual feedback
+- **Camera lock**: camera is locked while ALT is held, movement (WASD) remains active
+- **Release ALT to close**: releasing ALT closes everything instantly
+- **Flyout submenus**: submenus expand to the right on hover (nested submenus supported)
+- **Shine hover effect**: items glow with red accent border on hover, consistent with the menu system
+- Register options by entity type: `vehicle`, `ped`, `player`, `object`, `myself`, `mycar`, or `all`
+- **Target yourself**: `myself` type for options on your own character
+- **Target your vehicle**: `mycar` type for options on the vehicle you are sitting in (inherits `vehicle` options)
+- **Target a specific entity**: `entity` field to bind options to a single entity handle
+- **Target by model/prop**: `model` field to bind options to all props of a given model name or hash
+- **Auto-cleanup**: options are automatically removed when the resource that registered them stops
 
 ### General
 - UI sound effects (hover, select, toggle) with global toggle
@@ -496,6 +511,255 @@ zed.RemoveMenu("main")
 
 ---
 
+### Context Menu
+
+The context menu system allows players to interact with entities by holding **ALT** and **left-clicking** on them. Options are registered by entity type, specific entity, or model name. Submenus expand as flyout panels to the right on hover.
+
+#### How it works
+
+1. Player holds **ALT** — the native cursor appears, the camera locks, but movement (WASD) remains active
+2. Entities under the cursor get **highlighted** (semi-transparent) with a hand cursor
+3. Player **left-clicks** on a highlighted entity — the context menu opens at the cursor position
+4. Player selects an option — the callback is executed with the entity handle, type, and coordinates
+5. **Releasing ALT** at any time closes everything (cursor, highlight, menu)
+
+#### Options by entity type
+
+Register options that appear for all entities of a given type:
+
+```lua
+-- Option for all vehicles
+zed.AddContextOption({
+    type = "vehicle",
+    label = "Lock / Unlock",
+    icon = "lock",
+    onSelect = function(entity, entityType, coords)
+        local locked = GetVehicleDoorLockStatus(entity)
+        SetVehicleDoorsLocked(entity, locked == 1 and 2 or 1)
+    end
+})
+
+-- Option for all entity types
+zed.AddContextOption({
+    type = "all",
+    label = "Inspect",
+    icon = "magnifying-glass",
+    onSelect = function(entity, entityType, coords)
+        print("Entity:", entity, "Type:", entityType)
+    end
+})
+```
+
+Available types: `vehicle`, `ped`, `player`, `object`, `myself`, `mycar`, `all`
+
+#### Options for yourself (`myself`)
+
+Options that appear when targeting your own character:
+
+```lua
+zed.AddContextOption({
+    type = "myself",
+    label = "Play Animation",
+    icon = "person-walking",
+    onSelect = function(entity, entityType, coords)
+        -- Open animation menu
+    end
+})
+
+zed.AddContextOption({
+    type = "myself",
+    label = "Change Outfit",
+    icon = "shirt",
+    onSelect = function(entity, entityType, coords)
+        -- Open clothing menu
+    end
+})
+```
+
+#### Options for your vehicle (`mycar`)
+
+Options that appear when targeting the vehicle you are currently sitting in. These **inherit** all `vehicle` type options as well:
+
+```lua
+zed.AddContextOption({
+    type = "mycar",
+    label = "Toggle Engine",
+    icon = "power-off",
+    onSelect = function(entity, entityType, coords)
+        SetVehicleEngineOn(entity, not GetIsVehicleEngineRunning(entity), false, true)
+    end
+})
+
+zed.AddContextOption({
+    type = "mycar",
+    label = "Toggle Doors Lock",
+    icon = "lock",
+    onSelect = function(entity, entityType, coords)
+        local locked = GetVehicleDoorLockStatus(entity)
+        SetVehicleDoorsLocked(entity, locked == 1 and 2 or 1)
+    end
+})
+```
+
+#### Options for a specific entity
+
+Bind options to a single entity handle. Useful for unique NPCs, spawned objects, etc.:
+
+```lua
+local shopkeeper = CreatePed(4, GetHashKey("a_m_m_indian_01"), 24.5, -1345.6, 29.5, 0.0, true, true)
+
+zed.AddContextOption({
+    entity = shopkeeper,
+    label = "Talk to shopkeeper",
+    icon = "comment",
+    onSelect = function(entity, entityType, coords)
+        -- Open shop dialog
+    end
+})
+
+zed.AddContextOption({
+    entity = shopkeeper,
+    label = "Browse goods",
+    icon = "store",
+    onSelect = function(entity, entityType, coords)
+        -- Open shop menu
+    end
+})
+```
+
+#### Options by model/prop
+
+Bind options to all instances of a specific model. Accepts a model name (string) or hash (number):
+
+```lua
+-- All ATMs in the world
+zed.AddContextOption({
+    model = "prop_atm_01",
+    label = "Withdraw money",
+    icon = "money-bill",
+    onSelect = function(entity, entityType, coords)
+        -- Open ATM UI
+    end
+})
+
+zed.AddContextOption({
+    model = "prop_atm_01",
+    label = "Check balance",
+    icon = "receipt",
+    onSelect = function(entity, entityType, coords)
+        -- Show balance
+    end
+})
+
+-- Also works with a hash
+zed.AddContextOption({
+    model = GetHashKey("prop_vend_snak_01"),
+    label = "Buy snack",
+    icon = "cookie-bite",
+    onSelect = function(entity, entityType, coords)
+        -- Buy food
+    end
+})
+```
+
+#### Flyout submenus
+
+Group related options into submenus that expand to the right on hover. Nested submenus are supported:
+
+```lua
+-- Create a submenu for vehicle actions
+zed.AddContextSubMenu({
+    type = "vehicle",
+    id = "veh_actions",
+    label = "Vehicle Actions",
+    icon = "car"
+})
+
+-- Add options inside the submenu
+zed.AddContextOption({
+    type = "vehicle",
+    submenu = "veh_actions",
+    label = "Repair",
+    icon = "wrench",
+    onSelect = function(entity, entityType, coords)
+        SetVehicleFixed(entity)
+        SetVehicleDeformationFixed(entity)
+    end
+})
+
+zed.AddContextOption({
+    type = "vehicle",
+    submenu = "veh_actions",
+    label = "Delete",
+    icon = "trash",
+    onSelect = function(entity, entityType, coords)
+        DeleteVehicle(entity)
+    end
+})
+
+-- Submenus also work with entity or model targeting
+zed.AddContextSubMenu({
+    model = "prop_atm_01",
+    id = "atm_actions",
+    label = "ATM Options",
+    icon = "building-columns"
+})
+```
+
+#### Options table
+
+| Field       | Type       | Default  | Description                                              |
+|-------------|------------|----------|----------------------------------------------------------|
+| `type`      | `string`   | `'all'`  | Entity type: `'vehicle'`, `'ped'`, `'player'`, `'object'`, `'myself'`, `'mycar'`, `'all'` |
+| `entity`    | `number`   | `nil`    | Specific entity handle (overrides `type`)                |
+| `model`     | `string` or `number` | `nil` | Model name or hash — applies to all props with this model (overrides `type`) |
+| `label`     | `string`   | required | Display label                                            |
+| `icon`      | `string`   | `nil`    | FontAwesome icon name or image URL                       |
+| `id`        | `string`   | auto     | Custom identifier                                        |
+| `disabled`  | `boolean`  | `false`  | Whether the option is grayed out                         |
+| `submenu`   | `string`   | `nil`    | Submenu id to nest the option inside                     |
+| `onSelect`  | `function` | `nil`    | `function(entity, entityType, coords)` called on click   |
+
+> **Priority**: `entity` > `model` > `type`. If `entity` is set, `type` and `model` are ignored.
+
+#### Submenu options table
+
+| Field    | Type     | Default  | Description                                              |
+|----------|----------|----------|----------------------------------------------------------|
+| `type`   | `string` | `'all'`  | Entity type filter                                       |
+| `entity` | `number` | `nil`    | Specific entity handle (overrides `type`)                |
+| `model`  | `string` or `number` | `nil` | Model name or hash (overrides `type`)       |
+| `id`     | `string` | auto     | Unique submenu identifier                                |
+| `label`  | `string` | required | Display label for the submenu                            |
+| `icon`   | `string` | `nil`    | FontAwesome icon name or URL                             |
+
+#### Management functions
+
+```lua
+-- Remove a specific option by its id
+zed.RemoveContextOption("opt_ctx_1")
+
+-- Remove all options and submenus
+zed.ClearContext()
+
+-- Disable/enable targeting (ALT hold)
+zed.SetContextEnabled(false)
+zed.SetContextEnabled(true)
+
+-- Check state
+zed.IsContextEnabled()  -- boolean
+zed.IsContextOpen()     -- boolean
+
+-- Force close the context menu
+zed.CloseContext()
+```
+
+#### Auto-cleanup
+
+When a resource that registered context options is **stopped or restarted**, all its options and submenus are automatically removed. No manual cleanup needed — no duplicates on restart.
+
+---
+
 ### Notifications
 
 #### Generic Notification
@@ -539,37 +803,37 @@ zed.Notify({
 zed.ClearNotifications()
 ```
 
-#### Notifications depuis le serveur (events)
+#### Server-side Notifications
 
-Depuis le **serveur**, vous pouvez envoyer une notification à un joueur ou à tous les joueurs via les exports. Le client reçoit l’event `zedlib:notify` et affiche la notification. Aucun event n’est exposé pour qu’un client déclenche un envoi à tous (évite les abus).
+From the **server**, you can send notifications to a specific player or broadcast to all players using exports. No event is exposed for clients to trigger broadcasts (prevents abuse).
 
-**Côté serveur** (dans un script `server_scripts` ou depuis un autre resource) :
+**Server-side** (in a `server_scripts` file or from another resource):
 
 ```lua
--- Envoyer à un joueur (par son server ID)
+-- Send to a specific player (by server ID)
 exports['zedlib']:Notify(source, {
-    title = "Bienvenue",
+    title = "Welcome",
     type = "info",
-    message = "Vous êtes connecté.",
+    message = "You are now connected.",
     duration = 5000
 })
 
--- Envoyer à tous les joueurs
+-- Broadcast to all players
 exports['zedlib']:NotifyToAll({
-    title = "Annonce",
-    subtitle = "Serveur",
-    message = "Redémarrage dans 5 minutes.",
+    title = "Announcement",
+    subtitle = "Server",
+    message = "Restart in 5 minutes.",
     type = "warning",
     duration = 10000
 })
 ```
 
-| Export          | Paramètres        | Description |
-|-----------------|-------------------|-------------|
-| `Notify(source, data)`   | `source` = server ID, `data` = table (title, type?, subtitle?, message?, duration?, color?, image?) | Envoie une notification à un joueur. |
-| `NotifyToAll(data)`      | `data` = même table que ci-dessus | Envoie une notification à tous les joueurs connectés. |
+| Export | Parameters | Description |
+|--------|-----------|-------------|
+| `Notify(source, data)` | `source` = server ID, `data` = notification table | Send a notification to a specific player |
+| `NotifyToAll(data)` | `data` = same table as above | Broadcast a notification to all connected players |
 
-Les champs de `data` sont les mêmes que pour les notifications côté client (voir tableau plus haut). Seul le **serveur** peut appeler ces exports ; un client ne peut pas déclencher un envoi à tous.
+The `data` fields are the same as client-side notifications (see table above). Only the **server** can call these exports.
 
 ---
 
@@ -787,7 +1051,7 @@ Hold arrow keys for auto-repeat (300ms initial delay, 80ms repeat interval). The
 | `Notify` | `data: { title, type?, subtitle?, message?, duration?, color?, image? }` | — | Show a notification |
 | `ClearNotifications` | — | — | Dismiss all notifications |
 
-**Exports serveur** (depuis un script côté serveur) : `exports['zedlib']:Notify(source, data)` pour un joueur, `exports['zedlib']:NotifyToAll(data)` pour tous. Voir [Notifications depuis le serveur](#notifications-depuis-le-serveur-events).
+**Server exports**: `exports['zedlib']:Notify(source, data)` for a specific player, `exports['zedlib']:NotifyToAll(data)` for all. See [Server-side Notifications](#server-side-notifications).
 
 ### Dialog Functions
 
@@ -796,6 +1060,21 @@ Hold arrow keys for auto-repeat (300ms initial delay, 80ms repeat interval). The
 | `Dialog` | `opts` | `dialogId` | Open an input/custom dialog (opts: color, icon, inputs type textarea, button icon) |
 | `Confirm` | `title, message, onConfirm?, onCancel?, color?` | — | Open a quick confirm dialog |
 | `CloseDialog` | — | — | Close the active dialog |
+
+### Context Menu Functions
+
+| Function | Parameters | Returns | Description |
+|----------|-------------|---------|-------------|
+| `AddContextOption` | `opts` | `optionId` | Register an option (by type, entity, or model) |
+| `AddContextSubMenu` | `opts` | `submenuId` | Register a submenu (by type, entity, or model) |
+| `RemoveContextOption` | `id` | — | Remove a context option by id |
+| `ClearContext` | — | — | Remove all options and submenus |
+| `SetContextEnabled` | `enabled` | — | Enable or disable ALT targeting |
+| `IsContextEnabled` | — | `boolean` | Check if targeting is enabled |
+| `IsContextOpen` | — | `boolean` | Check if a context menu is visible |
+| `CloseContext` | — | — | Force close the context menu |
+
+Options support `type` (entity type filter), `entity` (specific entity handle), or `model` (model name/hash). Auto-cleanup on resource stop.
 
 ### Configuration Functions
 
@@ -976,10 +1255,13 @@ zedlib/
 │   └── api/                  # Lua API split by component
 │       ├── _init.lua         # UI table, ZedInternal (generateId, fireCallback)
 │       ├── menu.lua          # CreateMenu, AddButton, AddCheckbox, AddCategory, AddInfoButton, etc.
-│       ├── notification.lua # Notify, ClearNotifications
+│       ├── notification.lua  # Notify, ClearNotifications
 │       ├── dialog.lua        # Dialog, Confirm, CloseDialog
+│       ├── context.lua       # AddContextOption, AddContextSubMenu, entity/model targeting
 │       ├── config.lua        # SetConfig
 │       └── exports.lua       # FiveM exports for all functions
+├── lua/events/
+│       └── notification.lua  # Server-side Notify, NotifyToAll exports
 └── web/
     ├── package.json
     ├── src/
