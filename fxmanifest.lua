@@ -4,7 +4,7 @@ game 'gta5'
 name 'zedlib'
 description 'Zed Library - Modern FiveM UI Library'
 author 'Atoshi'
-version '1.0.0'
+version '1.2.0'
 
 ui_page 'web/dist/index.html'
 
