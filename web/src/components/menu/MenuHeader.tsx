@@ -10,6 +10,18 @@ interface MenuHeaderProps {
   canGoBack: boolean;
 }
 
+const TITLE_MAX_FONT_BANNER = 30;
+const TITLE_MIN_FONT_BANNER = 12;
+const TITLE_MAX_FONT_NO_BANNER = 15;
+const TITLE_MIN_FONT_NO_BANNER = 10;
+const TITLE_WIDTH_AVAILABLE = 300;
+
+function getTitleFontSize(length: number, maxPx: number, minPx: number): number {
+  if (length <= 0) return maxPx;
+  const size = TITLE_WIDTH_AVAILABLE / (length * 0.6);
+  return Math.round(Math.min(maxPx, Math.max(minPx, size)));
+}
+
 export function MenuHeader({
   title,
   banner,
@@ -19,6 +31,9 @@ export function MenuHeader({
   canGoBack,
 }: MenuHeaderProps) {
   const { showTitle, showItemCount } = useConfigStore((s) => s.config);
+  const titleLen = (title || '').length;
+  const fontSizeBanner = getTitleFontSize(titleLen, TITLE_MAX_FONT_BANNER, TITLE_MIN_FONT_BANNER);
+  const fontSizeNoBanner = getTitleFontSize(titleLen, TITLE_MAX_FONT_NO_BANNER, TITLE_MIN_FONT_NO_BANNER);
 
   if (banner) {
     return (
@@ -29,8 +44,11 @@ export function MenuHeader({
         transition={{ duration: 0.15 }}
       >
         {showTitle && title && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center">
-            <h2 className="text-[30px] font-bold text-white tracking-wide uppercase drop-shadow-lg">
+          <div className="absolute inset-0 z-10 flex items-center justify-center overflow-hidden px-2">
+            <h2
+              className="font-bold text-white tracking-wide uppercase drop-shadow-lg whitespace-nowrap"
+              style={{ fontSize: fontSizeBanner }}
+            >
               {title}
             </h2>
           </div>
@@ -61,13 +79,16 @@ export function MenuHeader({
         className="px-5 py-5"
         style={color ? { backgroundColor: color } : { backgroundColor: '#0a0a0a' }}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
             {canGoBack && (
-              <i className="fa-solid fa-arrow-left text-xs text-white/70" />
+              <i className="fa-solid fa-arrow-left text-xs text-white/70 flex-shrink-0" />
             )}
-            {showTitle && (
-              <h2 className="text-[15px] font-bold text-white tracking-wide uppercase">
+            {showTitle && title && (
+              <h2
+                className="font-bold text-white tracking-wide uppercase whitespace-nowrap min-w-0"
+                style={{ fontSize: fontSizeNoBanner }}
+              >
                 {title}
               </h2>
             )}

@@ -32,7 +32,7 @@ export function Dialog() {
           />
 
           <motion.div
-            className="relative w-[420px] rounded-xl overflow-hidden"
+            className="relative w-full max-w-[500px] rounded-xl overflow-hidden"
             style={{
               backgroundColor: 'rgba(0, 0, 0, 0.80)',
             }}
@@ -122,40 +122,50 @@ export function Dialog() {
               </div>
             )}
 
-            <div className="px-6 py-4 flex items-center justify-end gap-2 border-t border-white/[0.06]">
+            <div className="px-6 py-4 flex items-center justify-end gap-2 border-t border-white/[0.06] overflow-x-hidden">
               {(activeDialog.buttons ?? [
                 { label: 'Cancel', variant: 'secondary' as const, action: 'cancel' },
                 { label: 'Confirm', variant: 'primary' as const, action: 'confirm' },
-              ]).map((btn) => {
+              ])
+                .slice(0, 4)
+                .map((btn) => {
                 const isPrimary = btn.variant === 'primary';
                 const isDanger = btn.variant === 'danger';
+                  const hasCustomBg = !!btn.backgroundColor;
 
                 return (
                   <button
                     key={btn.action}
                     onClick={() => submitDialog(btn.action)}
-                    className="btn-shine px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-200"
+                    className="btn-shine inline-flex items-center justify-center px-4 h-[34px] rounded-lg text-[13px] font-medium transition-all duration-200 max-w-[110px]"
                     style={
-                      isPrimary
+                      hasCustomBg
                         ? {
-                            backgroundColor: accentColor,
-                            color: 'white',
-                            boxShadow: `0 0 15px ${accentColor}30`,
+                            backgroundColor: btn.backgroundColor,
+                            color: '#ffffff',
                           }
-                        : isDanger
+                        : isPrimary
                           ? {
-                              backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                              color: '#f87171',
-                              border: '1px solid rgba(239, 68, 68, 0.2)',
+                              backgroundColor: accentColor,
+                              color: 'white',
+                              boxShadow: `0 0 15px ${accentColor}30`,
                             }
-                          : {
-                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                              color: 'rgba(255, 255, 255, 0.7)',
-                              border: '1px solid rgba(255, 255, 255, 0.1)',
-                            }
+                          : isDanger
+                            ? {
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                color: '#f87171',
+                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                              }
+                            : {
+                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                              }
                     }
                     onMouseEnter={(e) => {
-                      if (isPrimary) {
+                      if (hasCustomBg) {
+                        e.currentTarget.style.filter = 'brightness(1.12)';
+                      } else if (isPrimary) {
                         e.currentTarget.style.boxShadow = `0 0 25px ${accentColor}50`;
                         e.currentTarget.style.filter = 'brightness(1.2)';
                       } else if (isDanger) {
@@ -166,7 +176,9 @@ export function Dialog() {
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (isPrimary) {
+                      if (hasCustomBg) {
+                        e.currentTarget.style.filter = 'brightness(1)';
+                      } else if (isPrimary) {
                         e.currentTarget.style.boxShadow = `0 0 15px ${accentColor}30`;
                         e.currentTarget.style.filter = 'brightness(1)';
                       } else if (isDanger) {
@@ -177,8 +189,18 @@ export function Dialog() {
                       }
                     }}
                   >
-                    {btn.icon && <i className={`fa-solid fa-${btn.icon} mr-2 text-xs`} />}
-                    {btn.label}
+                    {btn.icon && <i className={`fa-solid fa-${btn.icon} mr-1.5 text-xs`} />}
+                    <span
+                      className="whitespace-normal text-center leading-snug"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {btn.label}
+                    </span>
                   </button>
                 );
               })}

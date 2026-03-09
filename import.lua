@@ -208,6 +208,7 @@
 ---@field variant? 'primary'|'secondary'|'danger' Visual style of the button (default: 'secondary')
 ---@field action? string Action identifier sent to the callback
 ---@field icon? string FontAwesome icon name displayed before the label (e.g. 'trash')
+---@field backgroundColor? string Custom background color for the button (hex/rgba). Overrides variant background.
 ---@field onPress? fun(values: table) Callback fired when the button is pressed. Receives input values.
 
 ---@class ZedDialogInput

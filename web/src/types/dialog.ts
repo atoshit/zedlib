@@ -5,6 +5,8 @@ export interface DialogButton {
   variant?: 'primary' | 'secondary' | 'danger';
   action: string;
   icon?: string;
+  /** Optional custom background color (hex or rgba). Overrides variant background. */
+  backgroundColor?: string;
 }
 
 export interface DialogInputField {

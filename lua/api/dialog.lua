@@ -31,6 +31,7 @@ function UI.Dialog(opts)
                 variant = btn.variant or 'secondary',
                 action = btn.action or ('action_' .. i),
                 icon = btn.icon or nil,
+                backgroundColor = btn.backgroundColor or nil,
             }
 
             if btn.onPress then

@@ -3,7 +3,7 @@ ZedConfig = {
     accentColor = '#FF2008',
 
     -- Show the menu title in the header
-    showTitle = false,
+    showTitle = true,
 
     -- Show the item counter (e.g. "3 / 12") in the header
     showItemCount = false,
