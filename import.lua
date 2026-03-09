@@ -211,16 +211,22 @@
 ---@field backgroundColor? string Custom background color for the button (hex/rgba). Overrides variant background.
 ---@field onPress? fun(values: table) Callback fired when the button is pressed. Receives input values.
 
+---@class ZedDialogSelectOption
+---@field value string Value submitted when selected
+---@field label string Display label in the list
+
 ---@class ZedDialogInput
 ---@field id? string Input field identifier (default: 'input_N')
----@field type? 'text'|'number'|'password' Input type (default: 'text')
+---@field type? 'text'|'number'|'password'|'textarea'|'date'|'select'|'multiselect'|'checkbox' Input type (default: 'text')
 ---@field label string Display label for the input field
----@field placeholder? string Placeholder text
----@field default? string|number Default value
+---@field placeholder? string Placeholder text (select: placeholder when nothing selected)
+---@field default? string|boolean|string[] Default value. Checkbox: true/false. Multiselect: array of option values (e.g. {'a','b'}). Others: string.
 ---@field required? boolean Whether the input is required (default: false)
 ---@field maxLength? number Maximum character length
 ---@field min? number Minimum value (number type only)
 ---@field max? number Maximum value (number type only)
+---@field options? ZedDialogSelectOption[] Options for select and multiselect (value + label)
+---@field checkboxLabel? string Label next to the checkbox when type is 'checkbox' (default: 'Yes')
 
 ---@class ZedDialogOptions
 ---@field id? string Custom dialog identifier

@@ -9,16 +9,26 @@ export interface DialogButton {
   backgroundColor?: string;
 }
 
+export interface DialogSelectOption {
+  value: string;
+  label: string;
+}
+
 export interface DialogInputField {
   id: string;
-  type: 'text' | 'number' | 'password' | 'textarea';
+  type: 'text' | 'number' | 'password' | 'textarea' | 'date' | 'select' | 'multiselect' | 'checkbox';
   label: string;
   placeholder?: string;
+  /** Default value. For checkbox use 'true'/'false'. For multiselect use JSON array string e.g. '["v1","v2"]'. */
   defaultValue?: string;
   required?: boolean;
   maxLength?: number;
   min?: number;
   max?: number;
+  /** Options for select and multiselect. */
+  options?: DialogSelectOption[];
+  /** Checkbox label when type is 'checkbox' (field label is above). */
+  checkboxLabel?: string;
 }
 
 export interface DialogData {

@@ -61,6 +61,9 @@ local function findClosestEntityOfType(typeStr, maxDist)
 end
 
 --- Resolve world position and target entity from opts. Returns coords, entity (entity is nil when using coords only).
+---@param opts table { coords? = vector3|function, entity? = number, type? = 'ped'|'vehicle'|'object', label = string, key? = string, distance? = number, onSelect? = function }
+---@return vector3|nil coords
+---@return number|nil entity
 local function getInteractPosition(opts)
     if opts.entity and DoesEntityExist(opts.entity) then
         return GetEntityCoords(opts.entity) + vector3(0, 0, 1.0), opts.entity
@@ -76,6 +79,9 @@ local function getInteractPosition(opts)
     return getCoords(opts), nil
 end
 
+--- Get the control key for a given key string.
+---@param key string|number Key to get the control for.
+---@return number control Control key.
 local function getControlForKey(key)
     if type(key) == 'number' then return key end
     local k = type(key) == 'string' and key:upper():sub(1, 1) or nil

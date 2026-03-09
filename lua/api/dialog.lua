@@ -9,16 +9,25 @@ function UI.Dialog(opts)
     local inputs = {}
     if opts.inputs then
         for i, input in ipairs(opts.inputs) do
+            local defaultVal = input.default
+            if input.type == 'checkbox' then
+                if defaultVal == nil then defaultVal = 'false' end
+                if type(defaultVal) == 'boolean' then defaultVal = defaultVal and 'true' or 'false' end
+            elseif input.type == 'multiselect' and type(defaultVal) == 'table' then
+                defaultVal = json.encode(defaultVal)
+            end
             inputs[i] = {
                 id = input.id or ('input_' .. i),
                 type = input.type or 'text',
                 label = input.label,
                 placeholder = input.placeholder or nil,
-                defaultValue = input.default or nil,
+                defaultValue = defaultVal and tostring(defaultVal) or nil,
                 required = input.required or false,
                 maxLength = input.maxLength or nil,
                 min = input.min or nil,
-                max = input.max or nil
+                max = input.max or nil,
+                options = input.options or nil,
+                checkboxLabel = input.checkboxLabel or nil,
             }
         end
     end

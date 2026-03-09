@@ -20,7 +20,7 @@ export const useDialogStore = create<DialogStore>((set, get) => ({
     const initialValues: Record<string, string> = {};
     if (dialog.inputs) {
       for (const input of dialog.inputs) {
-        initialValues[input.id] = input.defaultValue ?? '';
+        initialValues[input.id] = input.defaultValue ?? (input.type === 'checkbox' ? 'false' : '');
       }
     }
     set({ activeDialog: dialog, inputValues: initialValues });
