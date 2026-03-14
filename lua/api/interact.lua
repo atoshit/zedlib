@@ -143,10 +143,10 @@ function UI.ClearInteractProgress()
 end
 
 CreateThread(function()
-    local waitMs = 500
+    local waitMs = 200
     while true do
         if next(interactConfigs) == nil then
-            waitMs = 500
+            waitMs = 200
         else
             local ped = PlayerPedId()
             local pedCoords = GetEntityCoords(ped)
@@ -199,8 +199,8 @@ CreateThread(function()
                     SendUI('zedlib:interactKeyPressed', {})
                     if cfg.onSelect then
                         local ok, err = pcall(cfg.onSelect, cfg._currentEntity)
-                        if not ok then
-                            print('[ZedLib] ^1Interact onSelect error:^0 ' .. tostring(err))
+                        if not ok and ZedInternal and ZedInternal.log then
+                            ZedInternal.log("ERROR", "INTERACT", "Interact onSelect error: " .. tostring(err), nil)
                         end
                     end
                 end
@@ -209,7 +209,7 @@ CreateThread(function()
                     interactShownId = nil
                     SendUI('zedlib:interactHide', {})
                 end
-                waitMs = next(interactConfigs) and 100 or 500
+                waitMs = next(interactConfigs) and 200 or 200
             end
         end
         Wait(waitMs)
@@ -278,8 +278,8 @@ CreateThread(function()
                                         local targetEntity = interactProgressConfig._holdEntity
                                         if interactProgressConfig.onSelect then
                                             local ok, err = pcall(interactProgressConfig.onSelect, targetEntity)
-                                            if not ok then
-                                                print('[ZedLib] ^1InteractProgress onSelect error:^0 ' .. tostring(err))
+                                            if not ok and ZedInternal and ZedInternal.log then
+                                                ZedInternal.log("ERROR", "INTERACT", "InteractProgress onSelect error: " .. tostring(err), nil)
                                             end
                                         end
                                         local removeOnComplete = interactProgressConfig.removeOnComplete ~= false
@@ -307,8 +307,8 @@ CreateThread(function()
                                     SendUI('zedlib:interactProgressHide', {})
                                     if interactProgressConfig.onCancel then
                                         local ok, err = pcall(interactProgressConfig.onCancel, targetEntity)
-                                        if not ok then
-                                            print('[ZedLib] ^1InteractProgress onCancel error:^0 ' .. tostring(err))
+                                        if not ok and ZedInternal and ZedInternal.log then
+                                            ZedInternal.log("ERROR", "INTERACT", "InteractProgress onCancel error: " .. tostring(err), nil)
                                         end
                                     end
                                     interactProgressConfig._shown = nil

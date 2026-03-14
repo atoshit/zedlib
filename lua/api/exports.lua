@@ -1,4 +1,5 @@
--- Menu
+--- Exposes all UI.* and ZedLib APIs to exports.zedlib for use by other resources.
+
 exports('CreateMenu', UI.CreateMenu)
 exports('AddButton', UI.AddButton)
 exports('AddCheckbox', UI.AddCheckbox)
@@ -13,6 +14,8 @@ exports('OpenMenu', UI.OpenMenu)
 exports('CloseMenu', UI.CloseMenu)
 exports('IsMenuOpen', UI.IsMenuOpen)
 exports('RemoveMenu', UI.RemoveMenu)
+exports('RefreshItem', UI.RefreshItem)
+exports('RefreshMenu', UI.RefreshMenu)
 
 -- Notification
 exports('Notify', UI.Notify)

@@ -1,4 +1,12 @@
+--- Context menu API: ALT-targeting entity menus with validation and model hash cache.
+
 local fireCallback = ZedInternal.fireCallback
+local assert = ZedInternal.assert
+local log = ZedInternal.log
+
+if not ZedState.modelHashCache then
+    ZedState.modelHashCache = {}
+end
 
 local contextOptions = {}
 local contextSubMenus = {}
@@ -15,9 +23,9 @@ local contextEntityType = nil
 local contextCoords = nil
 
 local nextCtxId = 0
---- Generate a context menu item identifier
----@param prefix string The prefix for the identifier
----@return string id The generated identifier
+
+---@param prefix string
+---@return string
 local function genCtxId(prefix)
     nextCtxId = nextCtxId + 1
     return prefix .. '_ctx_' .. nextCtxId
@@ -54,19 +62,50 @@ local function getEntityType(entity)
     return nil
 end
 
---- Resolve a model hash
----@param model string|number The model name or hash
----@return number hash The model hash
+---@param model string|number
+---@return number
 local function resolveModelHash(model)
     if type(model) == 'string' then
-        return GetHashKey(model)
+        if ZedState.modelHashCache[model] == nil then
+            ZedState.modelHashCache[model] = GetHashKey(model)
+        end
+        return ZedState.modelHashCache[model]
     end
     return model
 end
 
 ---@param opts table
----@return string optionId
+---@return string
 function UI.AddContextOption(opts)
+    assert("CONTEXT", type(opts) == 'table', "AddContextOption() — opts must be a table.", 2)
+    local hasEntity = type(opts.entity) == 'number' and opts.entity ~= 0
+    local hasModel = opts.model ~= nil
+    local hasType = opts.type ~= nil
+    assert("CONTEXT", not (hasEntity and hasModel), "AddContextOption() — Cannot use both entity and model.", 2)
+    assert("CONTEXT", not (hasEntity and hasType), "AddContextOption() — Cannot use both entity and type.", 2)
+    assert("CONTEXT", not (hasModel and hasType), "AddContextOption() — Cannot use both model and type.", 2)
+    assert("CONTEXT", type(opts.label) == 'string' and opts.label ~= '', "AddContextOption() — opts.label is required (non-empty string).", 2)
+    if opts.onSelect ~= nil then
+        assert("CONTEXT", type(opts.onSelect) == 'function' or type(opts.onSelect) == 'string', "AddContextOption() — opts.onSelect must be a function or callback id (string) when provided.", 2)
+    end
+    if opts.entity ~= nil and (type(opts.entity) ~= 'number' or opts.entity == 0) then
+        log("WARN", "CONTEXT", "AddContextOption() — opts.entity is invalid (0 or nil); option ignored.", nil)
+        return opts.id or genCtxId('opt')
+    end
+    if opts.submenu ~= nil and opts.submenu ~= '' then
+        local found = false
+        for _, subs in pairs(contextSubMenus) do
+            if subs[opts.submenu] then found = true break end
+        end
+        for _, subs in pairs(contextEntitySubMenus) do
+            if subs[opts.submenu] then found = true break end
+        end
+        for _, subs in pairs(contextModelSubMenus) do
+            if subs[opts.submenu] then found = true break end
+        end
+        assert("CONTEXT", found, "AddContextOption() — opts.submenu '" .. tostring(opts.submenu) .. "' must be registered with AddContextSubMenu first.", 2)
+    end
+
     local id = opts.id or genCtxId('opt')
     local callbackAction = 'context:' .. id
 
@@ -319,8 +358,8 @@ RegisterNUICallback('zedlib:contextAction', function(data, cb)
     local action = data.action
     if action and contextCallbacks[action] then
         local ok, err = pcall(contextCallbacks[action], contextEntity, contextEntityType, contextCoords)
-        if not ok then
-            print('[ZedLib] ^1Context callback error:^0 ' .. tostring(err))
+        if not ok and ZedInternal and ZedInternal.log then
+            ZedInternal.log("ERROR", "CONTEXT", "Context callback error: " .. tostring(err), nil)
         end
     end
     contextOpen = false

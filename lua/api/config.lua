@@ -1,7 +1,12 @@
---- Update the runtime configuration
----@param opts table The configuration options
+---@param opts table
 function UI.SetConfig(opts)
-    SendUI('zedlib:setConfig', opts or {})
+    opts = opts or {}
+    if opts.debug ~= nil then ZedConfig.debug = opts.debug == true end
+    if opts.debugFilter ~= nil then ZedConfig.debugFilter = opts.debugFilter end
+    if opts.refreshInterval ~= nil and type(opts.refreshInterval) == 'number' then
+        ZedConfig.refreshInterval = opts.refreshInterval
+    end
+    SendUI('zedlib:setConfig', opts)
 end
 
 --- Copy text to the clipboard

@@ -1,13 +1,9 @@
 ZedConfig = {
-    -- Global accent color for all components (hex)
     accentColor = '#FF2008',
-
-    -- Show the menu title in the header
-    showTitle = true,
-
-    -- Show the item counter (e.g. "3 / 12") in the header
+    showTitle = false,
     showItemCount = false,
-
-    -- Enable the context menu system (ALT targeting)
     enableContextMenu = true,
+    refreshInterval = 100,
+    debug = true,
+    debugFilter = nil,
 }

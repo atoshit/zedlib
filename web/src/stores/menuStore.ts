@@ -30,6 +30,7 @@ interface MenuStore {
   addItem: (menuId: string, item: MenuItem) => void;
   removeItem: (menuId: string, itemId: string) => void;
   updateItem: (menuId: string, itemId: string, updates: Partial<MenuItem>) => void;
+  replaceItems: (menuId: string, items: MenuItem[]) => void;
   openMenu: (id: string) => void;
   closeMenu: () => void;
   goBack: () => void;
@@ -127,6 +128,19 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         itemStates: {
           ...state.itemStates,
           [itemId]: { ...(state.itemStates[itemId] || {}), ...updates },
+        },
+      };
+    });
+  },
+
+  replaceItems: (menuId, items) => {
+    set((state) => {
+      const menu = state.menus[menuId];
+      if (!menu) return state;
+      return {
+        menus: {
+          ...state.menus,
+          [menuId]: { ...menu, items },
         },
       };
     });

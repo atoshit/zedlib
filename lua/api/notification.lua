@@ -1,5 +1,6 @@
---- Display a notification
----@param data table Notification options
+--- Notification API: display and clear toasts. Uses SendUI (batched NUI).
+
+---@param data table
 ---@param data.type? string One of 'success'|'error'|'warning'|'info' (default: 'info')
 ---@param data.title string Notification title
 ---@param data.subtitle? string Subtitle below the title

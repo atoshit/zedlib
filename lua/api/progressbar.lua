@@ -1,6 +1,10 @@
+--- Progress bar API: blocking progress with optional anim/prop and validation.
+
+local assert = ZedInternal.assert
+local log = ZedInternal.log
+
 local progressActive = false
 local progressCancelled = false
-local progressPromise = nil
 
 RegisterNUICallback('zedlib:progressComplete', function(data, cb)
     if progressActive then
@@ -30,14 +34,27 @@ local function loadModel(model)
     return hash
 end
 
---- Show a progress bar. Blocks the current thread until complete or cancelled.
----@param opts table Progress bar options
----@return boolean completed true if finished, false if cancelled
+---@param opts table
+---@return boolean
 function UI.ProgressBar(opts)
-    if progressActive then return false end
-
     opts = opts or {}
+    assert("PROGRESS", type(opts.duration) == 'number' or opts.duration == nil, "ProgressBar() — opts.duration must be a number.", 2)
     local duration = opts.duration or 5000
+    assert("PROGRESS", duration > 0, "ProgressBar() — opts.duration must be greater than 0.", 2)
+    local anim = opts.anim
+    if anim ~= nil then
+        assert("PROGRESS", type(anim) == 'table' and type(anim.dict) == 'string' and anim.dict ~= '' and type(anim.clip) == 'string' and anim.clip ~= '', "ProgressBar() — opts.anim requires dict and clip (non-empty strings).", 2)
+    end
+    local prop = opts.prop
+    if prop ~= nil then
+        assert("PROGRESS", type(prop) == 'table' and (prop.model ~= nil), "ProgressBar() — opts.prop requires model.", 2)
+    end
+    if progressActive then
+        log("WARN", "PROGRESS", "ProgressBar() — A progress bar is already active; starting new one cancels the previous.", nil)
+    end
+
+    progressActive = true
+    progressCancelled = false
     local label = opts.label or ''
     local canCancel = opts.canCancel ~= false
     local anim = opts.anim

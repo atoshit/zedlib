@@ -13,6 +13,8 @@
 ---@field CloseMenu fun()
 ---@field IsMenuOpen fun(): boolean
 ---@field RemoveMenu fun(id: string)
+---@field RefreshItem fun(menuId: string, itemId: string, patch: table)
+---@field RefreshMenu fun(menuId: string)
 ---@field Notify fun(data: ZedNotifyData)
 ---@field ClearNotifications fun()
 ---@field Dialog fun(opts: ZedDialogOptions): string
@@ -251,6 +253,9 @@
 
 ---@class ZedConfigOptions
 ---@field sounds? boolean Enable or disable UI sounds (default: true)
+---@field debug? boolean Enable debug logging (default: false)
+---@field debugFilter? string[] Only log these components when set (e.g. {"MENU", "NUI"})
+---@field refreshInterval? number Watcher poll interval in ms (default: 100)
 
 ---@type ZedLib
 zed = {}
@@ -266,8 +271,15 @@ end
 local function storeCb(fn)
     if type(fn) ~= 'function' then return fn end
     _nextId = _nextId + 1
-    local id = _resName .. ':cb:' .. _nextId
+    local num = _nextId
+    local id = _resName .. ':cb:' .. num
+    local eventName = '__zedlib_cb_' .. _resName .. '_' .. num
     _callbacks[id] = fn
+    AddEventHandler(eventName, function(...)
+        if _callbacks[id] then
+            _callbacks[id](...)
+        end
+    end)
     return id
 end
 
@@ -393,6 +405,20 @@ end
 ---@param id string Menu identifier to remove
 function zed.RemoveMenu(id)
     call('RemoveMenu', id)
+end
+
+--- Refresh a single menu item with a partial patch (label, rightLabel, infoData, checked, etc.).
+---@param menuId string Menu identifier
+---@param itemId string Item identifier
+---@param patch table Partial item fields to update
+function zed.RefreshItem(menuId, itemId, patch)
+    call('RefreshItem', menuId, itemId, patch)
+end
+
+--- Re-send all items of a menu to the NUI (full refresh).
+---@param menuId string Menu identifier
+function zed.RefreshMenu(menuId)
+    call('RefreshMenu', menuId)
 end
 
 --- Display a notification.

@@ -13,6 +13,11 @@ export function removeNuiHandler(action: string): void {
   delete messageRouter[action];
 }
 
+export function dispatchNuiAction(action: string, data: unknown): void {
+  const handler = messageRouter[action];
+  if (handler) handler(data);
+}
+
 function handleNuiMessage(event: MessageEvent<NuiMessage>): void {
   const { action, data } = event.data ?? {};
   if (!action) return;

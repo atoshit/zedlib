@@ -305,8 +305,6 @@ export function Dialog() {
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
           >
-            <div className="h-[3px]" style={{ backgroundColor: accentColor }} />
-
             <div className="px-6 pt-5 pb-3">
               <div className="flex items-start gap-3">
                 {activeDialog.icon && (

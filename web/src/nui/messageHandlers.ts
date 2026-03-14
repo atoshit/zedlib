@@ -6,12 +6,23 @@ import { useContextStore } from '@/stores/contextStore';
 import { useProgressBarStore } from '@/stores/progressBarStore';
 import { useInteractStore } from '@/stores/interactStore';
 import { useInteractProgressStore } from '@/stores/interactProgressStore';
-import { registerNuiHandler } from './handlers';
+import { registerNuiHandler, dispatchNuiAction } from './handlers';
 import { nuiCallback } from './bridge';
 import type { MenuDefinition, MenuItem, NotificationData, DialogData } from '@/types';
 import type { ContextMenuData } from '@/types/context';
 
 export function registerAllHandlers(): void {
+  registerNuiHandler('zedlib:batch', (data) => {
+    const { messages } = data as { messages: Array<{ action: string; data: unknown }> };
+    if (Array.isArray(messages)) {
+      for (const msg of messages) {
+        if (msg && typeof msg.action === 'string') {
+          dispatchNuiAction(msg.action, msg.data);
+        }
+      }
+    }
+  });
+
   registerNuiHandler('zedlib:registerMenu', (data) => {
     const menu = data as MenuDefinition;
     useMenuStore.getState().registerMenu(menu);
@@ -25,6 +36,20 @@ export function registerAllHandlers(): void {
   registerNuiHandler('zedlib:addMenuItem', (data) => {
     const { menuId, item } = data as { menuId: string; item: MenuItem };
     useMenuStore.getState().addItem(menuId, item);
+  });
+
+  registerNuiHandler('zedlib:updateItem', (data) => {
+    const { menuId, itemId, patch } = data as {
+      menuId: string;
+      itemId: string;
+      patch: Partial<MenuItem>;
+    };
+    useMenuStore.getState().updateItem(menuId, itemId, patch);
+  });
+
+  registerNuiHandler('zedlib:refreshMenu', (data) => {
+    const { menuId, items } = data as { menuId: string; items: MenuItem[] };
+    useMenuStore.getState().replaceItems(menuId, items);
   });
 
   registerNuiHandler('zedlib:removeMenuItem', (data) => {

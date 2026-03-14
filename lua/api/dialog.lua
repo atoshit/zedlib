@@ -1,9 +1,39 @@
-local fireCallback = ZedInternal.fireCallback
+--- Dialog API: input/confirm dialogs with validation.
 
---- Open a dialog with input fields and/or action buttons
----@param opts table The dialog options
----@return string The dialog identifier
+local fireCallback = ZedInternal.fireCallback
+local assert = ZedInternal.assert
+
+local VALID_INPUT_TYPES = { text = true, number = true, password = true, textarea = true, date = true, select = true, multiselect = true, checkbox = true }
+local VALID_BUTTON_VARIANTS = { primary = true, secondary = true, danger = true }
+
+---@param opts table
+---@return string
 function UI.Dialog(opts)
+    assert("DIALOG", type(opts) == 'table', "Dialog() — opts must be a table.", 2)
+    assert("DIALOG", type(opts.title) == 'string' and opts.title ~= '', "Dialog() — opts.title is required.", 2)
+    if opts.color ~= nil then
+        assert("DIALOG", ZedInternal.validateHex(opts.color), "Dialog() — opts.color must be a valid hex string.", 2)
+    end
+    local seenIds = {}
+    if opts.inputs then
+        assert("DIALOG", type(opts.inputs) == 'table', "Dialog() — opts.inputs must be a table.", 2)
+        for i, input in ipairs(opts.inputs) do
+            local itype = input.type or 'text'
+            assert("DIALOG", VALID_INPUT_TYPES[itype], "Dialog() — opts.inputs[" .. i .. "].type '" .. tostring(itype) .. "' is invalid. Accepted: text, number, password, textarea, date, select, multiselect, checkbox.", 2)
+            local id = input.id or ('input_' .. i)
+            assert("DIALOG", not seenIds[id], "Dialog() — opts.inputs[" .. i .. "].id must be unique.", 2)
+            seenIds[id] = true
+        end
+    end
+    if opts.buttons then
+        assert("DIALOG", type(opts.buttons) == 'table', "Dialog() — opts.buttons must be a table.", 2)
+        for i, btn in ipairs(opts.buttons) do
+            assert("DIALOG", type(btn) == 'table' and (btn.label ~= nil and btn.label ~= ''), "Dialog() — opts.buttons[" .. i .. "].label is required.", 2)
+            local v = btn.variant or 'secondary'
+            assert("DIALOG", VALID_BUTTON_VARIANTS[v], "Dialog() — opts.buttons[" .. i .. "].variant must be primary, secondary, or danger.", 2)
+        end
+    end
+
     local dialogId = opts.id or ('dialog_' .. GetGameTimer())
 
     local inputs = {}

@@ -16,14 +16,15 @@ files {
 
 client_scripts {
     'config.lua',
-    'lua/client.lua',
     'lua/api/_init.lua',
+    'lua/client.lua',
     'lua/api/menu.lua',
     'lua/api/notification.lua',
     'lua/api/dialog.lua',
     'lua/api/context.lua',
     'lua/api/progressbar.lua',
     'lua/api/interact.lua',
+    'lua/api/watcher.lua',
     'lua/api/config.lua',
     'lua/api/exports.lua',
     'lua/events/notification.lua',

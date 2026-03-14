@@ -5,8 +5,8 @@ RegisterNUICallback('zedlib:menuAction', function(data, cb)
     local action = data.action
     if action and menuCallbacks[action] then
         local ok, err = pcall(menuCallbacks[action], data)
-        if not ok then
-            print('[ZedLib] ^1Menu callback error:^0 ' .. tostring(err))
+        if not ok and ZedInternal and ZedInternal.log then
+            ZedInternal.log("ERROR", "MENU", "Menu callback error: " .. tostring(err), nil)
         end
     end
     cb('ok')
@@ -43,8 +43,8 @@ RegisterNUICallback('zedlib:dialogResult', function(data, cb)
         ok, err = pcall(dialogCallbacks[dialogId], action, data.values or {})
     end
 
-    if ok == false then
-        print('[ZedLib] ^1Dialog callback error:^0 ' .. tostring(err))
+    if ok == false and ZedInternal and ZedInternal.log then
+        ZedInternal.log("ERROR", "DIALOG", "Dialog callback error: " .. tostring(err), nil)
     end
 
     SetNuiFocus(false, false)
@@ -68,16 +68,6 @@ function RegisterDialogCallback(dialogId, action, callback)
     else
         dialogCallbacks[dialogId] = action
     end
-end
-
---- Send a message to the UI
----@param action string The action to send
----@param data table The data to send
-function SendUI(action, data)
-    SendNUIMessage({
-        action = action,
-        data = data or {}
-    })
 end
 
 exports('SendUI', SendUI)
@@ -242,8 +232,7 @@ CreateThread(function()
             end
         end
 
-        -- When context is enabled but ALT not held, poll every 150ms instead of every frame
-        Wait(contextReady and 150 or 500)
+        Wait(contextReady and 100 or 500)
     end
 end)
 
